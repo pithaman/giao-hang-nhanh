@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Đơn hàng của tôi{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">📋 Đơn hàng của tôi</h2>
+
+{% if don_hangs %}
+<div class="row">
+    {% for don_hang in don_hangs %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <strong>{{ don_hang.ma_don }}</strong>
+                {% if don_hang.trang_thai == 'cho_duyet' %}
+                    <span class="badge bg-warning">Chờ duyệt</span>
+                {% elif don_hang.trang_thai == 'da_gan' %}
+                    <span class="badge bg-info">Đã gán</span>
+                {% elif don_hang.trang_thai == 'dang_giao' %}
+                    <span class="badge bg-primary">Đang giao</span>
+                {% elif don_hang.trang_thai == 'hoan_thanh' %}
+                    <span class="badge bg-success">Hoàn thành</span>
+                {% elif don_hang.trang_thai == 'da_huy' %}
+                    <span class="badge bg-danger">Đã hủy</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <p><strong>📍 Giao:</strong> {{ don_hang.dia_chi_giao[:50] }}...</p>
+                <p><strong>💰 Tổng tiền:</strong> {{ "{:,.0f}đ".format(don_hang.tong_tien) }}</p>
+                <p><strong>📅 Ngày đặt:</strong> {{ don_hang.ngay_tao.strftime('%d/%m/%Y %H:%M') }}</p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('customer.track_order', ma_don=don_hang.ma_don) }}" class="btn btn-sm btn-primary">
+                    🔍 Theo dõi
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+    <p class="lead">Chưa có đơn hàng nào</p>
+    <a href="{{ url_for('customer.place_order') }}" class="btn btn-primary">Đặt hàng ngay</a>
+</div>
+{% endif %}
+{% endblock %}

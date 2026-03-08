@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Trang chủ Khách hàng{% endblock %}
+
+{% block content %}
+<div class="jumbotron bg-light p-5 rounded mb-4">
+    <h1 class="display-4">🛒 Chào mừng đến với Giao Hàng Nhanh</h1>
+    <p class="lead">Đặt hàng dễ dàng, giao hàng nhanh chóng trong vòng 2 giờ</p>
+    <hr class="my-4">
+    <a class="btn btn-primary btn-lg" href="{{ url_for('customer.place_order') }}" role="button">
+        📦 Đặt hàng ngay
+    </a>
+    <a class="btn btn-success btn-lg" href="{{ url_for('customer.my_orders') }}" role="button">
+        📋 Đơn hàng của tôi
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-shipping-fast fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Giao Hàng Siêu Tốc</h5>
+                <p class="card-text">Nhận hàng trong vòng 2 giờ nội thành</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-map-marked-alt fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Theo Dõi Real-time</h5>
+                <p class="card-text">Biết vị trí tài xế mọi lúc mọi nơi</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-shield-alt fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Đảm Bảo An Toàn</h5>
+                <p class="card-text">Hàng hóa được bảo hiểm 100%</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">📍 Theo dõi đơn hàng nhanh</h5>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('customer.track_order', ma_don='TEST') }}" method="GET" class="row">
+            <div class="col-md-8">
+                <input type="text" name="ma_don" class="form-control" placeholder="Nhập mã đơn hàng (VD: DH20260307123456)" required>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-success w-100">🔍 Theo dõi</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Đơn hàng của tôi{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📋 Đơn hàng đang giao</h2>
+    <div>
+        <a href="{{ url_for('driver.home') }}" class="btn btn-secondary">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+{% if don_hangs %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Mã đơn</th>
+                <th>Khách hàng</th>
+                <th>Địa chỉ giao</th>
+                <th>Trạng thái</th>
+                <th>Thời gian</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for don_hang in don_hangs %}
+            <tr>
+                <td><strong>{{ don_hang.ma_don }}</strong></td>
+                <td>{{ don_hang.khach_hang.ho_ten if don_hang.khach_hang else 'N/A' }}</td>
+                <td>{{ don_hang.dia_chi_giao[:40] }}...</td>
+                <td>
+                    {% if don_hang.trang_thai == 'da_gan' %}
+                        <span class="badge bg-info">Đã gán</span>
+                    {% elif don_hang.trang_thai == 'dang_lay' %}
+                        <span class="badge bg-primary">Đang lấy</span>
+                    {% elif don_hang.trang_thai == 'dang_giao' %}
+                        <span class="badge bg-warning">Đang giao</span>
+                    {% endif %}
+                </td>
+                <td>{{ don_hang.ngay_tao.strftime('%H:%M %d/%m') }}</td>
+                <td>
+                    <a href="{{ url_for('driver.update_status', order_id=don_hang.id) }}" 
+                       class="btn btn-sm btn-primary">
+                        <i class="fas fa-edit"></i> Cập nhật
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+    <p class="lead">Không có đơn hàng nào</p>
+</div>
+{% endif %}
+{% endblock %}

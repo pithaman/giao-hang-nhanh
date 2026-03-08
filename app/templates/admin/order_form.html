@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Sửa đơn hàng' if don_hang else 'Tạo đơn mới' }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ '✏️ Sửa đơn hàng' if don_hang else '📝 Tạo đơn hàng mới' }}</h2>
+    <a href="{{ url_for('admin.orders') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <form method="POST">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Thông tin đơn hàng</h5>
+                </div>
+                <div class="card-body">
+                    {% if don_hang %}
+                    <div class="mb-3">
+                        <label class="form-label">Mã đơn</label>
+                        <input type="text" class="form-control" value="{{ don_hang.ma_don }}" disabled>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Khách hàng <span class="text-danger">*</span></label>
+                        <select name="khach_hang_id" class="form-control" required 
+                                {{ 'disabled' if don_hang else '' }}>
+                            <option value="">-- Chọn khách hàng --</option>
+                            {% for kh in khach_hangs %}
+                            <option value="{{ kh.id }}" 
+                                    {{ 'selected' if don_hang and don_hang.khach_hang_id == kh.id else '' }}>
+                                {{ kh.ho_ten }} ({{ kh.so_dien_thoai }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Tài xế</label>
+                        <select name="tai_xe_id" class="form-control">
+                            <option value="">-- Chưa gán --</option>
+                            {% for tx in tai_xes %}
+                            <option value="{{ tx.id }}" 
+                                    {{ 'selected' if don_hang and don_hang.tai_xe_id == tx.id else '' }}>
+                                {{ tx.ho_ten }} - {{ tx.bien_so_xe }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ lấy hàng <span class="text-danger">*</span></label>
+                        <textarea name="dia_chi_lay" class="form-control" rows="2" required>{{ don_hang.dia_chi_lay if don_hang else '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                        <textarea name="dia_chi_giao" class="form-control" rows="2" required>{{ don_hang.dia_chi_giao if don_hang else '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Ghi chú</label>
+                        <textarea name="ghi_chu" class="form-control" rows="2">{{ don_hang.ghi_chu if don_hang else '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Thanh toán</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Phí vận chuyển</label>
+                        <input type="number" name="phi_van_chuyen" class="form-control" 
+                               value="{{ don_hang.phi_van_chuyen if don_hang else 30000 }}" required>
+                    </div>
+                    
+                    {% if don_hang %}
+                    <div class="mb-3">
+                        <label class="form-label">Trạng thái</label>
+                        <select name="trang_thai" class="form-control" required>
+                            <option value="cho_duyet" {{ 'selected' if don_hang.trang_thai == 'cho_duyet' else '' }}>Chờ duyệt</option>
+                            <option value="da_gan" {{ 'selected' if don_hang.trang_thai == 'da_gan' else '' }}>Đã gán</option>
+                            <option value="dang_lay" {{ 'selected' if don_hang.trang_thai == 'dang_lay' else '' }}>Đang lấy</option>
+                            <option value="dang_giao" {{ 'selected' if don_hang.trang_thai == 'dang_giao' else '' }}>Đang giao</option>
+                            <option value="hoan_thanh" {{ 'selected' if don_hang.trang_thai == 'hoan_thanh' else '' }}>Hoàn thành</option>
+                            <option value="da_huy" {{ 'selected' if don_hang.trang_thai == 'da_huy' else '' }}>Đã hủy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <strong>Tổng tiền:</strong> {{ "{:,.0f}đ".format(don_hang.tong_tien) }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save"></i> {{ 'Cập nhật' if don_hang else 'Tạo đơn hàng' }}
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5>💡 Hướng dẫn</h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li class="mb-2">Chọn khách hàng từ danh sách</li>
+                    <li class="mb-2">Nhập địa chỉ lấy và giao hàng</li>
+                    <li class="mb-2">Gán tài xế (tùy chọn)</li>
+                    <li class="mb-2">Đặt phí vận chuyển</li>
+                    <li>Nhấn "Tạo đơn hàng" để lưu</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

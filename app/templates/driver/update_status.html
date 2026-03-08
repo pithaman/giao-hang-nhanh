@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Cập nhật trạng thái{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Cập nhật trạng thái đơn {{ don_hang.ma_don }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6>Thông tin đơn hàng:</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <td><strong>Khách hàng:</strong></td>
+                            <td>{{ don_hang.khach_hang.ho_ten if don_hang.khach_hang else 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Địa chỉ giao:</strong></td>
+                            <td>{{ don_hang.dia_chi_giao }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Trạng thái hiện tại:</strong></td>
+                            <td>
+                                {% if don_hang.trang_thai == 'da_gan' %}
+                                    <span class="badge bg-info">Đã gán</span>
+                                {% elif don_hang.trang_thai == 'dang_lay' %}
+                                    <span class="badge bg-primary">Đang lấy</span>
+                                {% elif don_hang.trang_thai == 'dang_giao' %}
+                                    <span class="badge bg-warning">Đang giao</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Trạng thái mới</label>
+                        <select name="trang_thai" class="form-control" required>
+                            {% if don_hang.trang_thai == 'da_gan' %}
+                            <option value="dang_lay">🚚 Đang lấy hàng</option>
+                            {% endif %}
+                            
+                            {% if don_hang.trang_thai == 'dang_lay' %}
+                            <option value="dang_giao">🛵 Đang giao hàng</option>
+                            {% endif %}
+                            
+                            {% if don_hang.trang_thai == 'dang_giao' %}
+                            <option value="hoan_thanh">✅ Giao thành công</option>
+                            <option value="da_huy">❌ Hủy đơn</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check"></i> Xác nhận cập nhật
+                        </button>
+                        <a href="{{ url_for('driver.my_deliveries') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Hủy
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

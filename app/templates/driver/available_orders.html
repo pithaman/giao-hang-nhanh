@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Đơn hàng có thể nhận{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📦 Đơn hàng có thể nhận</h2>
+    <a href="{{ url_for('driver.home') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+{% if don_hangs %}
+<div class="row">
+    {% for don_hang in don_hangs %}
+    <div class="col-md-6 mb-4">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white d-flex justify-content-between">
+                <strong>{{ don_hang.ma_don }}</strong>
+                <span class="badge bg-warning">Chờ gán</span>
+            </div>
+            <div class="card-body">
+                <p><strong>📍 Lấy tại:</strong> {{ don_hang.dia_chi_lay[:50] }}...</p>
+                <p><strong>🏠 Giao đến:</strong> {{ don_hang.dia_chi_giao[:50] }}...</p>
+                <p><strong>💰 Phí vận chuyển:</strong> {{ "{:,.0f}đ".format(don_hang.phi_van_chuyen) }}</p>
+                <p><strong>📝 Ghi chú:</strong> {{ don_hang.ghi_chu or 'Không có' }}</p>
+            </div>
+            <div class="card-footer">
+                <form action="{{ url_for('driver.accept_order', order_id=don_hang.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-success" 
+                            onclick="return confirm('Bạn có muốn nhận đơn này không?')">
+                        <i class="fas fa-check"></i> Nhận đơn
+                    </button>
+                </form>
+                <span class="text-muted ms-2">
+                    {{ don_hang.ngay_tao.strftime('%H:%M %d/%m/%Y') }}
+                </span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+    <p class="lead">Không có đơn hàng nào chờ gán</p>
+    <a href="{{ url_for('driver.home') }}" class="btn btn-primary">Về trang chủ</a>
+</div>
+{% endif %}
+{% endblock %}

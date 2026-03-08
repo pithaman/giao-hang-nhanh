@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Trang chủ - Giao Hàng Nhanh{% endblock %}
+
+{% block content %}
+<div class="jumbotron bg-light p-5 rounded">
+    <h1 class="display-4">🚚 Giao Hàng Nhanh</h1>
+    <p class="lead">Dịch vụ giao hàng nhanh chóng, tiện lợi và đáng tin cậy</p>
+    <hr class="my-4">
+    <p>Đặt hàng ngay hôm nay để nhận ưu đãi hấp dẫn!</p>
+    <a class="btn btn-primary btn-lg" href="/customer" role="button">Đặt hàng ngay</a>
+    <a class="btn btn-success btn-lg" href="/admin" role="button">Quản lý</a>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title">⚡ Nhanh chóng</h3>
+                <p class="card-text">Giao hàng trong vòng 2 giờ</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title">💰 Tiết kiệm</h3>
+                <p class="card-text">Chi phí hợp lý, nhiều ưu đãi</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title">🛡️ An toàn</h3>
+                <p class="card-text">Đảm bảo hàng hóa nguyên vẹn</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

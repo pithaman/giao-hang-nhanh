@@ -1,0 +1,27 @@
+# Virtual Environment - KHÔNG commit
+venv/
+env/
+ENV/
+
+# Python cache - KHÔNG commit
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Database files - KHÔNG commit
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment variables - KHÔNG commit
+.env
+
+# IDE - KHÔNG commit
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs - KHÔNG commit
+*.log

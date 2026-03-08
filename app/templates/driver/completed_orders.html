@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Đơn đã hoàn thành{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>✅ Đơn hàng đã hoàn thành</h2>
+    <a href="{{ url_for('driver.home') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+<div class="alert alert-info">
+    <strong>Tổng đơn hoàn thành:</strong> {{ tai_xe.tong_don }} đơn
+</div>
+
+{% if don_hangs %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Mã đơn</th>
+                <th>Địa chỉ giao</th>
+                <th>Doanh thu</th>
+                <th>Ngày hoàn thành</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for don_hang in don_hangs %}
+            <tr>
+                <td><strong>{{ don_hang.ma_don }}</strong></td>
+                <td>{{ don_hang.dia_chi_giao[:40] }}...</td>
+                <td>{{ "{:,.0f}đ".format(don_hang.tong_tien) }}</td>
+                <td>{{ don_hang.ngay_hoan_thanh.strftime('%H:%M %d/%m/%Y') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-trophy fa-4x text-muted mb-3"></i>
+    <p class="lead">Chưa có đơn hàng nào hoàn thành</p>
+</div>
+{% endif %}
+{% endblock %}

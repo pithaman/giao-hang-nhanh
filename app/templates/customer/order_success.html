@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Đặt hàng thành công{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <i class="fas fa-check-circle text-success fa-5x mb-4"></i>
+    <h1 class="display-4">Đặt hàng thành công!</h1>
+    <p class="lead">Mã đơn hàng của bạn: <strong class="text-primary">{{ don_hang.ma_don }}</strong></p>
+    
+    <div class="card mx-auto mt-4" style="max-width: 500px;">
+        <div class="card-body">
+            <h5 class="card-title">📋 Thông tin đơn hàng</h5>
+            <table class="table table-sm">
+                <tr>
+                    <td>Địa chỉ lấy:</td>
+                    <td>{{ don_hang.dia_chi_lay[:50] }}...</td>
+                </tr>
+                <tr>
+                    <td>Địa chỉ giao:</td>
+                    <td>{{ don_hang.dia_chi_giao[:50] }}...</td>
+                </tr>
+                <tr>
+                    <td>Phí vận chuyển:</td>
+                    <td>{{ "{:,.0f}đ".format(don_hang.phi_van_chuyen) }}</td>
+                </tr>
+                <tr>
+                    <td>Tổng tiền:</td>
+                    <td class="text-primary"><strong>{{ "{:,.0f}đ".format(don_hang.tong_tien) }}</strong></td>
+                </tr>
+                <tr>
+                    <td>Trạng thái:</td>
+                    <td><span class="badge bg-warning">{{ don_hang.get_trang_thai_display() }}</span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('customer.track_order', ma_don=don_hang.ma_don) }}" class="btn btn-primary btn-lg">
+            📍 Theo dõi đơn hàng
+        </a>
+        <a href="{{ url_for('customer.home') }}" class="btn btn-secondary btn-lg">
+            🏠 Về trang chủ
+        </a>
+    </div>
+</div>
+{% endblock %}

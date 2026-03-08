@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Hồ sơ của tôi{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">👤 Hồ sơ người dùng</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Thông tin tài khoản</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" value="{{ user.email }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vai trò</label>
+                        <input type="text" class="form-control" value="{{ user.vai_tro }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ngày tạo</label>
+                        <input type="text" class="form-control" 
+                               value="{{ user.ngay_tao.strftime('%d/%m/%Y %H:%M') }}" disabled>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    {% if user.is_customer() and user.khach_hang %}
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Thông tin cá nhân</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Họ tên</label>
+                        <input type="text" name="ho_ten" class="form-control" 
+                               value="{{ user.khach_hang.ho_ten }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="tel" name="so_dien_thoai" class="form-control" 
+                               value="{{ user.khach_hang.so_dien_thoai }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ</label>
+                        <textarea name="dia_chi" class="form-control" rows="2">{{ user.khach_hang.dia_chi }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Cập nhật
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Đổi mật khẩu -->
+<div class="card mt-4">
+    <div class="card-header bg-warning">
+        <h5 class="mb-0">🔑 Đổi mật khẩu</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Mật khẩu hiện tại</label>
+                    <input type="password" name="current_password" class="form-control" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Mật khẩu mới</label>
+                    <input type="password" name="new_password" class="form-control" minlength="6" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <button type="submit" class="btn btn-warning" style="margin-top: 32px;">
+                        <i class="fas fa-key"></i> Đổi mật khẩu
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

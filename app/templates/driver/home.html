@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Driver Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>🚚 Xin chào, {{ tai_xe.ho_ten }}</h2>
+        <p class="text-muted">Biển số: {{ tai_xe.bien_so_xe }} | 
+           <span class="badge {% if tai_xe.trang_thai == 'hoat_dong' %}bg-success{% else %}bg-danger{% endif %}">
+               {{ 'Đang hoạt động' if tai_xe.trang_thai == 'hoat_dong' else 'Ngừng hoạt động' }}
+           </span>
+        </p>
+    </div>
+    <div>
+        <a href="{{ url_for('driver.available_orders') }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Nhận đơn mới
+        </a>
+        <a href="{{ url_for('driver.logout') }}" class="btn btn-secondary">
+            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+        </a>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3 class="display-4">{{ don_dang_giao }}</h3>
+                <p>Đơn đang giao</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3 class="display-4">{{ don_hoan_thanh }}</h3>
+                <p>Đơn hoàn thành</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h3 class="display-4">{{ "%.1f" % tai_xe.danh_gia }}</h3>
+                <p>Đánh giá ⭐</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Active Orders -->
+<div class="card">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">📦 Đơn hàng đang giao</h5>
+    </div>
+    <div class="card-body">
+        {% if don_hangs_dang_giao %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Địa chỉ giao</th>
+                        <th>Trạng thái</th>
+                        <th>Tổng tiền</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for don_hang in don_hangs_dang_giao %}
+                    <tr>
+                        <td><strong>{{ don_hang.ma_don }}</strong></td>
+                        <td>{{ don_hang.dia_chi_giao[:40] }}...</td>
+                        <td>
+                            {% if don_hang.trang_thai == 'da_gan' %}
+                                <span class="badge bg-info">Đã gán</span>
+                            {% elif don_hang.trang_thai == 'dang_lay' %}
+                                <span class="badge bg-primary">Đang lấy</span>
+                            {% elif don_hang.trang_thai == 'dang_giao' %}
+                                <span class="badge bg-warning">Đang giao</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ "{:,.0f}đ".format(don_hang.tong_tien) }}</td>
+                        <td>
+                            <a href="{{ url_for('driver.update_status', order_id=don_hang.id) }}" 
+                               class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i> Cập nhật
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center py-4">
+            <i class="fas fa-inbox fa-3x mb-3"></i><br>
+            Không có đơn hàng nào đang giao
+        </p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-4 text-center">
+    <a href="{{ url_for('driver.my_deliveries') }}" class="btn btn-outline-primary">
+        📋 Xem tất cả đơn hàng
+    </a>
+    <a href="{{ url_for('driver.completed_orders') }}" class="btn btn-outline-success">
+        ✅ Đơn đã hoàn thành
+    </a>
+</div>
+{% endblock %}
