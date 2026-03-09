@@ -1,32 +1,36 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_login import LoginManager
+from flask_jwt_extended import JWTManager
+from config import Config  # ✅ IMPORT CONFIG
 import os
 from dotenv import load_dotenv
 
-# Import extensions TỪ FILE RIÊNG
-from app.extensions import db, migrate, login_manager, jwt
-
 load_dotenv()
 
-# Cấu hình login
+# ✅ KHỞI TẠO EXTENSIONS
+db = SQLAlchemy()
+migrate = Migrate()
+login_manager = LoginManager()
+jwt = JWTManager()
+
 login_manager.login_view = 'auth.login'
 login_manager.login_message = 'Vui lòng đăng nhập để tiếp tục.'
 
-def create_app():
+def create_app(config_class=Config):  # ✅ CÓ THAM SỐ CONFIG
     app = Flask(__name__)
     
-    # Config
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'giao-hang-nhanh-secret-2026')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-2026')
+    # ✅ LOAD CONFIG
+    app.config.from_object(config_class)
     
-    # Init extensions
+    # ✅ INIT EXTENSIONS
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     jwt.init_app(app)
     
-    # Register blueprints
+    # ✅ REGISTER BLUEPRINTS
     from app.routes import auth, admin, customer, driver, api
     app.register_blueprint(auth.bp)
     app.register_blueprint(admin.bp, url_prefix='/admin')
