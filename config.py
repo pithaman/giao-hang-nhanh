@@ -9,7 +9,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'giao-hang-nhanh-2026'
     
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'mysql+pymysql://root:05092005@localhost:3306/giao_hang_don_le'
+        'postgresql://user:pass@localhost/giao_hang_don_le'
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
