@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app import db
+from app.extensions import db
 from app.models import User, KhachHang, TaiXe
 from werkzeug.security import generate_password_hash
 from datetime import datetime
