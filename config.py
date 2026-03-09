@@ -9,7 +9,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'giao-hang-nhanh-2026'
     
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'postgresql://user:pass@localhost/giao_hang_don_le'
+        'sqlite:///giao_hang.db'
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
