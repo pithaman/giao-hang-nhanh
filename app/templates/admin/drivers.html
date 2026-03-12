@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Tài xế</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('admin.dashboard') }}">🚚 Giao Hàng Nhanh</a>
+            <div class="d-flex">
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-light me-2">Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger">Đăng xuất</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h2>👥 Quản lý Tài xế</h2>
+        <p class="text-muted">Chưa có tài xế nào</p>
+    </div>
+</body>
+</html>
