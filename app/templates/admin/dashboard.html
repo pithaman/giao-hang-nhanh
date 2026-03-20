@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h2>📊 Admin Dashboard</h2>
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h3>{{ tong_don }}</h3>
+                <p>Tổng đơn hàng</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning">
+            <div class="card-body">
+                <h3>{{ don_cho_duyet }}</h3>
+                <p>Chờ duyệt</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h3>{{ don_hoan_thanh }}</h3>
+                <p>Hoàn thành</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h3>{{ tai_xe_pending }}</h3>
+                <p>Tài xế chờ duyệt</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mt-4">
+    <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-primary">Quản lý đơn hàng</a>
+    <a href="{{ url_for('admin.drivers') }}" class="btn btn-outline-success">Quản lý tài xế</a>
+</div>
+{% endblock %}

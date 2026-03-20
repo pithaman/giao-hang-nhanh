@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Đăng ký{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">Đăng ký</div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label>Họ tên</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>SĐT</label>
+                        <input type="tel" name="phone" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Mật khẩu</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Loại tài khoản</label>
+                        <select name="vai_tro" class="form-select">
+                            <option value="customer">👤 Khách hàng</option>
+                            <option value="driver">🚗 Tài xế</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Đăng ký</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

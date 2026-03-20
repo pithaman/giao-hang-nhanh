@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Customer Dashboard{% endblock %}
+{% block content %}
+<h2>👤 Xin chào, {{ current_user.name }}!</h2>
+<a href="{{ url_for('customer.place_order') }}" class="btn btn-primary btn-lg mt-3">📦 Đặt hàng ngay</a>
+<a href="{{ url_for('customer.my_orders') }}" class="btn btn-outline-primary btn-lg mt-3">📋 Xem đơn của tôi</a>
+{% if don_hangs %}
+<h4 class="mt-4">Đơn hàng gần đây:</h4>
+<ul class="list-group">
+    {% for don in don_hangs %}
+    <li class="list-group-item">{{ don.ma_don }} - {{ don.trang_thai }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
