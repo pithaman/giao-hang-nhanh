@@ -2,6 +2,20 @@
 {% block title %}Admin Dashboard{% endblock %}
 {% block content %}
 <h2>📊 Admin Dashboard</h2>
+
+<!-- Navigation Menu -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Giao Hàng Nhanh</a>
+        <div class="navbar-nav">
+            <a class="nav-link active" href="{{ url_for('admin.dashboard') }}">📊 Dashboard</a>
+            <a class="nav-link" href="{{ url_for('admin.orders') }}">📦 Đơn hàng</a>
+            <a class="nav-link" href="{{ url_for('admin.drivers') }}">👨‍✈️ Tài xế</a>
+            <a class="nav-link" href="{{ url_for('auth.logout') }}">🚪 Đăng xuất</a>
+        </div>
+    </div>
+</nav>
+
 <div class="row mt-4">
     <div class="col-md-3">
         <div class="card bg-primary text-white">
@@ -36,8 +50,11 @@
         </div>
     </div>
 </div>
+
 <div class="mt-4">
-    <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-primary">Quản lý đơn hàng</a>
-    <a href="{{ url_for('admin.drivers') }}" class="btn btn-outline-success">Quản lý tài xế</a>
+    <h4>Chức năng nhanh:</h4>
+    <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-primary me-2">📦 Quản lý đơn hàng</a>
+    <a href="{{ url_for('admin.drivers') }}" class="btn btn-outline-success me-2">👨‍✈️ Quản lý tài xế</a>
+    <a href="{{ url_for('customer.place_order') }}" class="btn btn-outline-info">📝 Đặt hàng test</a>
 </div>
 {% endblock %}

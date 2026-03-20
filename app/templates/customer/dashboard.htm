@@ -1,15 +1,59 @@
 {% extends "base.html" %}
 {% block title %}Customer Dashboard{% endblock %}
 {% block content %}
-<h2>👤 Xin chào, {{ current_user.name }}!</h2>
-<a href="{{ url_for('customer.place_order') }}" class="btn btn-primary btn-lg mt-3">📦 Đặt hàng ngay</a>
-<a href="{{ url_for('customer.my_orders') }}" class="btn btn-outline-primary btn-lg mt-3">📋 Xem đơn của tôi</a>
-{% if don_hangs %}
-<h4 class="mt-4">Đơn hàng gần đây:</h4>
-<ul class="list-group">
-    {% for don in don_hangs %}
-    <li class="list-group-item">{{ don.ma_don }} - {{ don.trang_thai }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
+<div class="container mt-4">
+    <h2>👤 Xin chào, {{ current_user.name }}!</h2>
+    
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3>📦</h3>
+                    <h5>Đặt hàng</h5>
+                    <a href="{{ url_for('customer.place_order') }}" class="btn btn-light btn-sm mt-2">Đặt hàng ngay</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3>📋</h3>
+                    <h5>Đơn của tôi</h5>
+                    <a href="{{ url_for('customer.my_orders') }}" class="btn btn-light btn-sm mt-2">Xem đơn hàng</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3>👤</h3>
+                    <h5>Tài khoản</h5>
+                    <span class="btn btn-light btn-sm mt-2">{{ current_user.email }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if don_hangs %}
+    <h4 class="mt-4">📋 Đơn hàng gần đây:</h4>
+    <div class="list-group">
+        {% for don in don_hangs %}
+        <a href="{{ url_for('customer.order_detail', id=don.id) }}" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">Đơn #{{ don.ma_don or don.id }}</h5>
+                <small>{{ don.ngay_tao.strftime('%d/%m/%Y') }}</small>
+            </div>
+            <p class="mb-1">{{ don.dia_chi_giao[:50] }}...</p>
+            <small class="text-warning">Trạng thái: {{ don.trang_thai | upper }}</small>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-4">
+        <h5>📦 Chưa có đơn hàng nào</h5>
+        <p>Bạn chưa có đơn hàng nào. Hãy đặt hàng đầu tiên!</p>
+        <a href="{{ url_for('customer.place_order') }}" class="btn btn-primary">Đặt hàng ngay</a>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}
