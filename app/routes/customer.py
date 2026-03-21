@@ -38,8 +38,13 @@ def place_order():
             trang_thai='cho_duyet',
             ngay_tao=datetime.utcnow()
         )
-        don_hang.ma_don = don_hang.generate_ma_don()
+
+        # ✅ Commit TRƯỚC để có self.id
         db.session.add(don_hang)
+        db.session.commit()  # ← Commit để có id
+
+        # ✅ Tạo ma_don SAU khi có id
+        don_hang.ma_don = don_hang.generate_ma_don()
         db.session.commit()
         
         flash('✅ Đặt hàng thành công!', 'success')

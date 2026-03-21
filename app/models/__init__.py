@@ -78,5 +78,13 @@ class DonHang(db.Model):
     tai_xe = db.relationship('TaiXe', backref='don_hangs')
     
     def generate_ma_don(self):
-        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-        return f'DH{timestamp}{self.id:04d}'
+        """Tạo mã đơn hàng - gọi SAU khi object đã có id"""
+        from datetime import datetime
+        if self.id is None:
+            # Nếu chưa có id, tạo tạm bằng timestamp + random
+            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+            import random
+            return f'DH{timestamp}{random.randint(1000, 9999)}'
+        else:
+            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+            return f'DH{timestamp}{self.id:04d}'
