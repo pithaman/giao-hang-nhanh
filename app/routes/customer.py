@@ -38,17 +38,17 @@ def place_order():
             trang_thai='cho_duyet',
             ngay_tao=datetime.utcnow()
         )
-
-        # ✅ Commit TRƯỚC để có self.id
+        
+        # ✅ Commit TRƯỚC để có id (nếu cần)
         db.session.add(don_hang)
-        db.session.commit()  # ← Commit để có id
-
-        # ✅ Tạo ma_don SAU khi có id
+        db.session.commit()  # ← Commit để save vào DB
+        
+        # ✅ Tạo ma_don SAU khi có object
         don_hang.ma_don = don_hang.generate_ma_don()
-        db.session.commit()
+        db.session.commit()  # ← Commit lại để lưu ma_don
         
         flash('✅ Đặt hàng thành công!', 'success')
-        return redirect(url_for('customer.dashboard'))
+        return redirect(url_for('customer.my_orders'))
     
     return render_template('customer/place_order.html')
 

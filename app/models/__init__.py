@@ -70,6 +70,18 @@ class DonHang(db.Model):
     
     tai_xe = db.relationship('TaiXe', backref='don_hangs')
 
+    def generate_ma_don(self):
+        """Tạo mã đơn hàng - không phụ thuộc vào self.id"""
+        from datetime import datetime
+        import random
+        
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        random_num = random.randint(1000, 9999)
+        return f'DH{timestamp}{random_num}'
+    
+    def __repr__(self):
+        return f'<DonHang {self.ma_don or self.id}>'
+
 
 class ThanhToan(db.Model):
     __tablename__ = 'thanh_toan'
