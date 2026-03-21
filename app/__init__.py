@@ -2,6 +2,13 @@
 from flask import Flask
 from config import Config
 from app.extensions import db, migrate, login_manager, jwt
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+login_manager.login_view = 'auth.login'
+login_manager.login_message = 'Vui lòng đăng nhập để tiếp tục.'
 
 def create_app(config_class=Config):
     app = Flask(__name__)

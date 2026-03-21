@@ -13,14 +13,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
-    
-    # ✅ Thêm property để luôn trả về lowercase
-    @property
-    def vai_tro_lower(self):
-        return (self.vai_tro or 'customer').lower().strip()
-    
     vai_tro = db.Column(db.String(20), nullable=False, default='customer')
-    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     
@@ -67,7 +60,7 @@ class DonHang(db.Model):
     giam_gia = db.Column(db.Float, default=0)
     tong_tien = db.Column(db.Float, nullable=False)
     
-    trang_thai = db.Column(db.String(30), default='cho_duyet')  # String!
+    trang_thai = db.Column(db.String(30), default='cho_duyet')
     
     ngay_tao = db.Column(db.DateTime, default=datetime.utcnow)
     ngay_duyet = db.Column(db.DateTime)
@@ -76,15 +69,40 @@ class DonHang(db.Model):
     ngay_huy = db.Column(db.DateTime)
     
     tai_xe = db.relationship('TaiXe', backref='don_hangs')
+
+
+class ThanhToan(db.Model):
+    __tablename__ = 'thanh_toan'
     
-    def generate_ma_don(self):
-        """Tạo mã đơn hàng - gọi SAU khi object đã có id"""
-        from datetime import datetime
-        if self.id is None:
-            # Nếu chưa có id, tạo tạm bằng timestamp + random
-            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-            import random
-            return f'DH{timestamp}{random.randint(1000, 9999)}'
-        else:
-            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-            return f'DH{timestamp}{self.id:04d}'
+    id = db.Column(db.Integer, primary_key=True)
+    don_hang_id = db.Column(db.Integer, db.ForeignKey('don_hang.id'), nullable=False, unique=True)
+    phuong_thuc = db.Column(db.String(50), nullable=False)
+    so_tien = db.Column(db.Float, nullable=False)
+    trang_thai = db.Column(db.String(20), default='pending')
+    transaction_id = db.Column(db.String(100))
+    thoi_diem = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class DanhGia(db.Model):
+    __tablename__ = 'danh_gia'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    don_hang_id = db.Column(db.Integer, db.ForeignKey('don_hang.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    tai_xe_id = db.Column(db.Integer, db.ForeignKey('tai_xe.id'), nullable=True)
+    
+    rating = db.Column(db.Integer, nullable=False)
+    comment = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ThongBao(db.Model):
+    __tablename__ = 'thong_bao'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    type = db.Column(db.String(50), default='info')
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
