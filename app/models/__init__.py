@@ -13,7 +13,14 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
-    vai_tro = db.Column(db.String(20), nullable=False, default='customer')  # String!
+    
+    # ✅ Thêm property để luôn trả về lowercase
+    @property
+    def vai_tro_lower(self):
+        return (self.vai_tro or 'customer').lower().strip()
+    
+    vai_tro = db.Column(db.String(20), nullable=False, default='customer')
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     

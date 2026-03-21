@@ -8,14 +8,6 @@ bp = Blueprint('auth', __name__)
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
-        if current_user.vai_tro == 'admin':
-            return redirect(url_for('admin.dashboard'))
-        elif current_user.vai_tro == 'customer':
-            return redirect(url_for('customer.dashboard'))
-        elif current_user.vai_tro == 'driver':
-            return redirect(url_for('driver.dashboard'))
-    
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -24,15 +16,33 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             flash('✅ Đăng nhập thành công!', 'success')
+            
+            # ✅ QUAN TRỌNG: Dùng .lower() để so sánh không phân biệt hoa thường
+            role = (user.vai_tro or 'customer').lower().strip()
+            
             next_page = request.args.get('next')
-            if user.vai_tro == 'admin':
+            
+            if role == 'admin':
                 return redirect(next_page or url_for('admin.dashboard'))
-            elif user.vai_tro == 'customer':
+            elif role == 'customer':
                 return redirect(next_page or url_for('customer.dashboard'))
-            else:
+            elif role == 'driver':
                 return redirect(next_page or url_for('driver.dashboard'))
+            else:
+                # Fallback: về dashboard theo role mặc định
+                return redirect(url_for('auth.login'))
         else:
             flash('❌ Email hoặc mật khẩu không đúng!', 'error')
+    
+    # Nếu đã login rồi, redirect theo role
+    if current_user.is_authenticated:
+        role = (current_user.vai_tro or 'customer').lower().strip()
+        if role == 'admin':
+            return redirect(url_for('admin.dashboard'))
+        elif role == 'customer':
+            return redirect(url_for('customer.dashboard'))
+        elif role == 'driver':
+            return redirect(url_for('driver.dashboard'))
     
     return render_template('login.html')
 
