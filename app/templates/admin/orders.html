@@ -1,28 +1,70 @@
 {% extends "base.html" %}
 {% block title %}Quản lý đơn hàng{% endblock %}
 {% block content %}
-<h2>📦 Quản lý đơn hàng</h2>
-<a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary mb-3">← Dashboard</a>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Mã đơn</th>
-            <th>Khách hàng</th>
-            <th>Địa chỉ giao</th>
-            <th>Tổng tiền</th>
-            <th>Trạng thái</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for don in don_hangs %}
-        <tr>
-            <td>{{ don.ma_don or don.id }}</td>
-            <td>{{ don.customer.name }}</td>
-            <td>{{ don.dia_chi_giao[:30] }}...</td>
-            <td>{{ don.tong_tien | int }}đ</td>
-            <td><span class="badge bg-warning">{{ don.trang_thai }}</span></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📦 Quản lý đơn hàng</h2>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">← Quay lại Dashboard</a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            {% if don_hangs %}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Địa chỉ giao</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for don in don_hangs %}
+                    <tr>
+                        <td><strong>{{ don.ma_don or '#' ~ don.id }}</strong></td>
+                        <td>{{ don.customer.name }}</td>
+                        <td>{{ don.dia_chi_giao[:40] }}...</td>
+                        <td><strong>{{ "{:,.0f}".format(don.tong_tien) }}đ</strong></td>
+                        <td>
+                            {% if don.trang_thai == 'cho_duyet' %}
+                            <span class="badge bg-warning">{{ don.trang_thai }}</span>
+                            {% elif don.trang_thai == 'da_duyet' %}
+                            <span class="badge bg-info">{{ don.trang_thai }}</span>
+                            {% elif don.trang_thai == 'dang_giao' %}
+                            <span class="badge bg-primary">{{ don.trang_thai }}</span>
+                            {% elif don.trang_thai == 'hoan_thanh' %}
+                            <span class="badge bg-success">{{ don.trang_thai }}</span>
+                            {% elif don.trang_thai == 'da_huy' %}
+                            <span class="badge bg-danger">{{ don.trang_thai }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ don.trang_thai }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ don.ngay_tao.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.order_detail', id=don.id) }}" class="btn btn-sm btn-outline-primary">
+                                👁️ Xem
+                            </a>
+                            {% if don.trang_thai == 'cho_duyet' %}
+                            <form method="POST" action="{{ url_for('admin.approve_order', id=don.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Duyệt đơn này?')">
+                                    ✅ Duyệt
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted text-center">Chưa có đơn hàng nào</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Gán tài xế - Đơn #{{ don_hang.ma_don or don_hang.id }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>👨‍✈️ Gán tài xế cho đơn #{{ don_hang.ma_don or don_hang.id }}</h2>
+        <a href="{{ url_for('admin.order_detail', id=don_hang.id) }}" class="btn btn-outline-secondary">← Quay lại</a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">📦 Thông tin đơn hàng</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Địa chỉ lấy:</strong> {{ don_hang.dia_chi_lay }}</p>
+                    <p><strong>Địa chỉ giao:</strong> {{ don_hang.dia_chi_giao }}</p>
+                    <p><strong>Tổng tiền:</strong> {{ "{:,.0f}".format(don_hang.tong_tien) }}đ</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">👨‍✈️ Chọn tài xế</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Danh sách tài xế:</label>
+                            <select name="tai_xe_id" class="form-select" required>
+                                <option value="">-- Chọn tài xế --</option>
+                                {% for tx in tai_xes %}
+                                <option value="{{ tx.id }}">
+                                    {{ tx.user.name }} - {{ tx.user.phone }} 
+                                    (⭐ {{ tx.rating }}/5.0 - {{ tx.tong_don or 0 }} đơn)
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        {% if tai_xes %}
+                        <button type="submit" class="btn btn-primary w-100">
+                            ✅ Gán tài xế
+                        </button>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            ⚠️ Không có tài xế nào được duyệt!
+                        </div>
+                        <a href="{{ url_for('admin.drivers') }}" class="btn btn-success w-100">
+                            Duyệt tài xế trước
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

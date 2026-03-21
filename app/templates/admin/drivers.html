@@ -1,34 +1,82 @@
 {% extends "base.html" %}
 {% block title %}Quản lý tài xế{% endblock %}
 {% block content %}
-<h2>👨‍✈️ Quản lý tài xế</h2>
-<a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary mb-3">← Dashboard</a>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Tên</th>
-            <th>SĐT</th>
-            <th>Biển số</th>
-            <th>Trạng thái</th>
-            <th>Thao tác</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for tx in tai_xes %}
-        <tr>
-            <td>{{ tx.user.name }}</td>
-            <td>{{ tx.user.phone }}</td>
-            <td>{{ tx.bien_so or 'Chưa cập nhật' }}</td>
-            <td><span class="badge bg-warning">{{ tx.status }}</span></td>
-            <td>
-                {% if tx.status == 'pending' %}
-                <form method="POST" action="{{ url_for('admin.approve_driver', id=tx.id) }}" style="display:inline;">
-                    <button type="submit" class="btn btn-sm btn-success">✅ Duyệt</button>
-                </form>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>👨‍✈️ Quản lý tài xế</h2>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">← Quay lại Dashboard</a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            {% if tai_xes %}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên</th>
+                        <th>Email</th>
+                        <th>SĐT</th>
+                        <th>Biển số</th>
+                        <th>Loại xe</th>
+                        <th>Trạng thái</th>
+                        <th>Tổng đơn</th>
+                        <th>Rating</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in tai_xes %}
+                    <tr>
+                        <td>{{ tx.id }}</td>
+                        <td><strong>{{ tx.user.name }}</strong></td>
+                        <td>{{ tx.user.email }}</td>
+                        <td>{{ tx.user.phone }}</td>
+                        <td>{{ tx.bien_so or 'Chưa cập nhật' }}</td>
+                        <td>
+                            {% if tx.loai_xe == 'xe_may' %}
+                            🏍️ Xe máy
+                            {% elif tx.loai_xe == 'oto' %}
+                            🚗 Ô tô
+                            {% else %}
+                            {{ tx.loai_xe }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if tx.status == 'pending' %}
+                            <span class="badge bg-warning">⏳ Chờ duyệt</span>
+                            {% elif tx.status == 'approved' %}
+                            <span class="badge bg-success">✅ Đã duyệt</span>
+                            {% elif tx.status == 'rejected' %}
+                            <span class="badge bg-danger">❌ Từ chối</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ tx.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-info">{{ tx.tong_don or 0 }}</span></td>
+                        <td>⭐ {{ tx.rating or 0 }}/5.0</td>
+                        <td>
+                            {% if tx.status == 'pending' %}
+                            <form method="POST" action="{{ url_for('admin.approve_driver', id=tx.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Duyệt tài xế này?')">
+                                    ✅ Duyệt
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('admin.reject_driver', id=tx.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Từ chối tài xế này?')">
+                                    ❌ Từ chối
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted text-center">Chưa có tài xế nào</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

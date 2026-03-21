@@ -2,38 +2,57 @@
 {% block title %}Chi tiết đơn #{{ don_hang.ma_don or don_hang.id }}{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <h2>📦 Chi tiết đơn #{{ don_hang.ma_don or don_hang.id }}</h2>
-    <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-secondary mb-3">← Quay lại</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📦 Chi tiết đơn #{{ don_hang.ma_don or don_hang.id }}</h2>
+        <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-secondary">← Quay lại</a>
+    </div>
     
     <div class="row">
+        <!-- THÔNG TIN ĐƠN HÀNG -->
         <div class="col-md-8">
             <div class="card mb-3">
-                <div class="card-header bg-primary text-white">Thông tin đơn hàng</div>
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📋 Thông tin giao hàng</h5>
+                </div>
                 <div class="card-body">
                     <p><strong>🏠 Địa chỉ lấy:</strong> {{ don_hang.dia_chi_lay }}</p>
                     <p><strong>🎯 Địa chỉ giao:</strong> {{ don_hang.dia_chi_giao }}</p>
                     <p><strong>📦 Loại hàng:</strong> {{ don_hang.loai_hang or 'N/A' }}</p>
                     <p><strong>⚖️ Cân nặng:</strong> {{ don_hang.can_nang or 'N/A' }} kg</p>
+                    <p><strong>🚚 Dịch vụ:</strong> 
+                        {% if don_hang.service_type == 'hoa_toc' %}
+                        ⚡ Giao hỏa tốc
+                        {% else %}
+                        🌞 Giao trong ngày
+                        {% endif %}
+                    </p>
                     <p><strong>📝 Ghi chú:</strong> {{ don_hang.ghi_chu or 'Không có' }}</p>
                 </div>
             </div>
             
+            <!-- THÔNG TIN KHÁCH HÀNG -->
             <div class="card mb-3">
-                <div class="card-header">Thông tin khách hàng</div>
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">👤 Thông tin khách hàng</h5>
+                </div>
                 <div class="card-body">
-                    <p><strong>👤 Tên:</strong> {{ don_hang.customer.name }}</p>
-                    <p><strong>📧 Email:</strong> {{ don_hang.customer.email }}</p>
-                    <p><strong>📞 SĐT:</strong> {{ don_hang.customer.phone }}</p>
+                    <p><strong>Tên:</strong> {{ don_hang.customer.name }}</p>
+                    <p><strong>Email:</strong> {{ don_hang.customer.email }}</p>
+                    <p><strong>SĐT:</strong> {{ don_hang.customer.phone }}</p>
                 </div>
             </div>
             
+            <!-- TÀI XẾ (NẾU CÓ) -->
             {% if don_hang.tai_xe %}
             <div class="card mb-3 border-success">
-                <div class="card-header bg-success text-white">👨‍✈️ Tài xế giao hàng</div>
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">👨‍✈️ Tài xế giao hàng</h5>
+                </div>
                 <div class="card-body">
                     <p><strong>Tên:</strong> {{ don_hang.tai_xe.user.name }}</p>
                     <p><strong>SĐT:</strong> {{ don_hang.tai_xe.user.phone }}</p>
                     <p><strong>Biển số:</strong> {{ don_hang.tai_xe.bien_so or 'Chưa cập nhật' }}</p>
+                    <p><strong>Loại xe:</strong> {{ don_hang.tai_xe.loai_xe }}</p>
                     <a href="tel:{{ don_hang.tai_xe.user.phone }}" class="btn btn-success btn-sm">📞 Gọi tài xế</a>
                 </div>
             </div>
@@ -41,7 +60,7 @@
             <div class="card mb-3 border-warning">
                 <div class="card-body">
                     <p class="text-warning mb-0">⚠️ Chưa gán tài xế</p>
-                    {% if don_hang.trang_thai == 'da_duyet' %}
+                    {% if don_hang.trang_thai in ['cho_duyet', 'da_duyet'] %}
                     <a href="{{ url_for('admin.assign_driver', id=don_hang.id) }}" class="btn btn-primary btn-sm mt-2">👨‍✈️ Gán tài xế</a>
                     {% endif %}
                 </div>
@@ -49,51 +68,79 @@
             {% endif %}
         </div>
         
+        <!-- THANH BÊN PHẢI -->
         <div class="col-md-4">
+            <!-- TRẠNG THÁI -->
             <div class="card mb-3">
-                <div class="card-header bg-success text-white">💰 Thanh toán</div>
-                <div class="card-body">
-                    <p>Giá cơ bản: {{ don_hang.gia_tien | int }}đ</p>
-                    <p>Phí dịch vụ: {{ don_hang.phi_dich_vu | int }}đ</p>
-                    <p>Giảm giá: -{{ don_hang.giam_gia | int }}đ</p>
-                    <hr>
-                    <h4 class="text-success">Tổng: {{ don_hang.tong_tien | int }}đ</h4>
+                <div class="card-header">
+                    <h5 class="mb-0">📍 Trạng thái</h5>
                 </div>
-            </div>
-            
-            <div class="card mb-3">
-                <div class="card-header">📍 Trạng thái</div>
                 <div class="card-body">
-                    <span class="badge bg-warning fs-6">{{ don_hang.trang_thai | upper }}</span>
+                    <div class="text-center mb-3">
+                        {% if don_hang.trang_thai == 'cho_duyet' %}
+                        <span class="badge bg-warning fs-5">{{ don_hang.trang_thai | upper }}</span>
+                        {% elif don_hang.trang_thai == 'da_duyet' %}
+                        <span class="badge bg-info fs-5">{{ don_hang.trang_thai | upper }}</span>
+                        {% elif don_hang.trang_thai == 'hoan_thanh' %}
+                        <span class="badge bg-success fs-5">{{ don_hang.trang_thai | upper }}</span>
+                        {% elif don_hang.trang_thai == 'da_huy' %}
+                        <span class="badge bg-danger fs-5">{{ don_hang.trang_thai | upper }}</span>
+                        {% else %}
+                        <span class="badge bg-secondary fs-5">{{ don_hang.trang_thai | upper }}</span>
+                        {% endif %}
+                    </div>
                     <hr>
                     <small>
-                        <p class="mb-1">📝 Tạo: {{ don_hang.ngay_tao.strftime('%d/%m %H:%M') }}</p>
+                        <p class="mb-2">📝 Tạo: {{ don_hang.ngay_tao.strftime('%d/%m/%Y %H:%M') }}</p>
                         {% if don_hang.ngay_duyet %}
-                        <p class="mb-1">✅ Duyệt: {{ don_hang.ngay_duyet.strftime('%d/%m %H:%M') }}</p>
+                        <p class="mb-2">✅ Duyệt: {{ don_hang.ngay_duyet.strftime('%d/%m/%Y %H:%M') }}</p>
                         {% endif %}
                         {% if don_hang.ngay_gan %}
-                        <p class="mb-1">👨‍✈️ Gán: {{ don_hang.ngay_gan.strftime('%d/%m %H:%M') }}</p>
+                        <p class="mb-2">👨‍✈️ Gán: {{ don_hang.ngay_gan.strftime('%d/%m/%Y %H:%M') }}</p>
                         {% endif %}
                     </small>
                 </div>
             </div>
             
+            <!-- THANH TOÁN -->
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">💰 Thanh toán</h5>
+                </div>
+                <div class="card-body">
+                    <p>Giá cơ bản: {{ "{:,.0f}".format(don_hang.gia_tien) }}đ</p>
+                    <p>Phí dịch vụ: {{ "{:,.0f}".format(don_hang.phi_dich_vu) }}đ</p>
+                    <p>Giảm giá: -{{ "{:,.0f}".format(don_hang.giam_gia) }}đ</p>
+                    <hr>
+                    <h4 class="text-success text-center">{{ "{:,.0f}".format(don_hang.tong_tien) }}đ</h4>
+                </div>
+            </div>
+            
+            <!-- THAO TÁC -->
             <div class="card">
-                <div class="card-header">⚙️ Thao tác</div>
+                <div class="card-header">
+                    <h5 class="mb-0">⚙️ Thao tác</h5>
+                </div>
                 <div class="card-body">
                     {% if don_hang.trang_thai == 'cho_duyet' %}
                     <form method="POST" action="{{ url_for('admin.approve_order', id=don_hang.id) }}" class="mb-2">
-                        <button type="submit" class="btn btn-success w-100">✅ Duyệt đơn</button>
+                        <button type="submit" class="btn btn-success w-100" onclick="return confirm('Duyệt đơn này?')">
+                            ✅ Duyệt đơn
+                        </button>
                     </form>
                     {% endif %}
                     
                     {% if don_hang.trang_thai in ['cho_duyet', 'da_duyet'] and not don_hang.tai_xe %}
-                    <a href="{{ url_for('admin.assign_driver', id=don_hang.id) }}" class="btn btn-primary w-100 mb-2">👨‍✈️ Gán tài xế</a>
+                    <a href="{{ url_for('admin.assign_driver', id=don_hang.id) }}" class="btn btn-primary w-100 mb-2">
+                        👨‍✈️ Gán tài xế
+                    </a>
                     {% endif %}
                     
                     {% if don_hang.trang_thai not in ['hoan_thanh', 'da_huy'] %}
                     <form method="POST" action="{{ url_for('admin.cancel_order', id=don_hang.id) }}" onsubmit="return confirm('Hủy đơn này?');">
-                        <button type="submit" class="btn btn-danger w-100">❌ Hủy đơn</button>
+                        <button type="submit" class="btn btn-danger w-100">
+                            ❌ Hủy đơn
+                        </button>
                     </form>
                     {% endif %}
                 </div>
