@@ -2,7 +2,7 @@
 {% block title %}Customer Dashboard{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <h2>👤 Xin chào, {{ current_user.name }}!</h2>
+    <h2>👋 Xin chào, {{ current_user.name }}!</h2>
     
     <div class="row mt-4">
         <div class="col-md-4">
@@ -26,33 +26,40 @@
         <div class="col-md-4">
             <div class="card bg-info text-white">
                 <div class="card-body text-center">
-                    <h3>👤</h3>
-                    <h5>Tài khoản</h5>
-                    <span class="btn btn-light btn-sm mt-2">{{ current_user.email }}</span>
+                    <h3>🔍</h3>
+                    <h5>Theo dõi</h5>
+                    <a href="{{ url_for('customer.track_order', ma_don='') }}" class="btn btn-light btn-sm mt-2">Tra cứu đơn</a>
                 </div>
             </div>
         </div>
     </div>
     
+    <h4 class="mt-4">📦 Đơn hàng gần đây</h4>
     {% if don_hangs %}
-    <h4 class="mt-4">📋 Đơn hàng gần đây:</h4>
     <div class="list-group">
         {% for don in don_hangs %}
         <a href="{{ url_for('customer.order_detail', id=don.id) }}" class="list-group-item list-group-item-action">
             <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">Đơn #{{ don.ma_don or don.id }}</h5>
-                <small>{{ don.ngay_tao.strftime('%d/%m/%Y') }}</small>
+                <h5 class="mb-1">Đơn #{{ don.ma_don }}</h5>
+                <small>{{ don.ngay_tao.strftime('%d/%m/%Y %H:%M') }}</small>
             </div>
             <p class="mb-1">{{ don.dia_chi_giao[:50] }}...</p>
-            <small class="text-warning">Trạng thái: {{ don.trang_thai | upper }}</small>
+            <small>
+                {% if don.trang_thai == 'cho_duyet' %}
+                <span class="badge bg-warning">⏳ Chờ duyệt</span>
+                {% elif don.trang_thai == 'hoan_thanh' %}
+                <span class="badge bg-success">✅ Hoàn thành</span>
+                {% else %}
+                <span class="badge bg-info">{{ don.trang_thai }}</span>
+                {% endif %}
+                <span class="text-primary">{{ "{:,.0f}".format(don.tong_tien) }}đ</span>
+            </small>
         </a>
         {% endfor %}
     </div>
     {% else %}
-    <div class="alert alert-info mt-4">
-        <h5>📦 Chưa có đơn hàng nào</h5>
-        <p>Bạn chưa có đơn hàng nào. Hãy đặt hàng đầu tiên!</p>
-        <a href="{{ url_for('customer.place_order') }}" class="btn btn-primary">Đặt hàng ngay</a>
+    <div class="alert alert-info mt-3">
+        <p class="mb-0">📦 Bạn chưa có đơn hàng nào. <a href="{{ url_for('customer.place_order') }}">Đặt hàng ngay!</a></p>
     </div>
     {% endif %}
 </div>

@@ -1,47 +1,101 @@
 {% extends "base.html" %}
-{% block title %}Đặt hàng{% endblock %}
+{% block title %}Đặt hàng mới{% endblock %}
 {% block content %}
-<h2>📦 Đặt hàng mới</h2>
-<a href="{{ url_for('customer.dashboard') }}" class="btn btn-outline-secondary mb-3">← Quay lại</a>
-<form method="POST">
-    <div class="mb-3">
-        <label>Địa chỉ lấy hàng</label>
-        <textarea name="dia_chi_lay" class="form-control" rows="2" required></textarea>
-    </div>
-    <div class="mb-3">
-        <label>Địa chỉ giao hàng</label>
-        <textarea name="dia_chi_giao" class="form-control" rows="2" required></textarea>
-    </div>
+<div class="container mt-4">
+    <h2>📦 Đặt hàng mới</h2>
+    <a href="{{ url_for('customer.dashboard') }}" class="btn btn-outline-secondary mb-3">← Quay lại</a>
+    
     <div class="row">
-        <div class="col-md-6 mb-3">
-            <label>Loại hàng</label>
-            <select name="loai_hang" class="form-select">
-                <option value="thuc_an">🍕 Thức ăn</option>
-                <option value="tai_lieu">📄 Tài liệu</option>
-                <option value="qua_tang">🎁 Quà tặng</option>
-                <option value="khac">📦 Khác</option>
-            </select>
+        <div class="col-md-8">
+            <form method="POST">
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">📍 Thông tin giao hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">🏠 Địa chỉ lấy hàng *</label>
+                            <textarea name="dia_chi_lay" class="form-control" rows="2" required placeholder="Số nhà, đường, quận/huyện..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">🎯 Địa chỉ giao hàng *</label>
+                            <textarea name="dia_chi_giao" class="form-control" rows="2" required placeholder="Số nhà, đường, quận/huyện..."></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">📦 Loại hàng</label>
+                                <select name="loai_hang" class="form-select">
+                                    <option value="thuc_an">🍕 Thức ăn</option>
+                                    <option value="tai_lieu">📄 Tài liệu</option>
+                                    <option value="qua_tang">🎁 Quà tặng</option>
+                                    <option value="hang_hoa">📦 Hàng hóa</option>
+                                    <option value="khac">🔷 Khác</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">⚖️ Cân nặng (kg)</label>
+                                <input type="number" name="can_nang" class="form-control" value="1" step="0.1" min="0.1">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">🚚 Loại dịch vụ</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="service_type" value="hoa_toc" id="hoa_toc" checked>
+                                <label class="form-check-label" for="hoa_toc">
+                                    ⚡ Giao hỏa tốc (2h) - 35,000đ
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="service_type" value="trong_ngay" id="trong_ngay">
+                                <label class="form-check-label" for="trong_ngay">
+                                    🌞 Giao trong ngày (4-6h) - 25,000đ
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">📝 Ghi chú</label>
+                            <textarea name="ghi_chu" class="form-control" rows="2" placeholder="Hướng dẫn giao hàng, lưu ý..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">💰 Thanh toán</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">💵 Giá dịch vụ (đ)</label>
+                            <input type="number" name="gia_tien" class="form-control" value="35000" min="10000" step="1000">
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            ✅ Đặt hàng ngay
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class="col-md-6 mb-3">
-            <label>Cân nặng (kg)</label>
-            <input type="number" name="can_nang" class="form-control" value="1" step="0.1">
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">ℹ️ Hướng dẫn</h5>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        <li>Điền địa chỉ lấy và giao hàng</li>
+                        <li>Chọn loại hàng và cân nặng</li>
+                        <li>Chọn loại dịch vụ giao</li>
+                        <li>Nhập ghi chú (nếu có)</li>
+                        <li>Nhấn "Đặt hàng ngay"</li>
+                    </ol>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="mb-3">
-        <label>Dịch vụ</label>
-        <select name="service_type" class="form-select">
-            <option value="hoa_toc">⚡ Giao hỏa tốc</option>
-            <option value="trong_ngay">🌞 Giao trong ngày</option>
-        </select>
-    </div>
-    <div class="mb-3">
-        <label>Giá tiền (đ)</label>
-        <input type="number" name="gia_tien" class="form-control" value="35000">
-    </div>
-    <div class="mb-3">
-        <label>Ghi chú</label>
-        <textarea name="ghi_chu" class="form-control" rows="2"></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary btn-lg">✅ Đặt hàng</button>
-</form>
+</div>
 {% endblock %}

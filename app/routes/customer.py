@@ -1,111 +1,143 @@
 # app/routes/customer.py
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from app.extensions import db
 from app.models import DonHang
 from datetime import datetime
+import random
 
 bp = Blueprint('customer', __name__)
 
 @bp.route('/')
 @login_required
 def dashboard():
+    """Customer dashboard"""
     if current_user.vai_tro != 'customer':
+        flash('❌ Bạn không có quyền truy cập!', 'error')
         return redirect(url_for('auth.login'))
     
-    don_hangs = DonHang.query.filter_by(customer_id=current_user.id).order_by(DonHang.ngay_tao.desc()).limit(5).all()
+    # Lấy 5 đơn hàng gần nhất của customer
+    don_hangs = DonHang.query.filter_by(customer_id=current_user.id)\
+        .order_by(DonHang.ngay_tao.desc()).limit(5).all()
+    
     return render_template('customer/dashboard.html', don_hangs=don_hangs)
 
 @bp.route('/place-order', methods=['GET', 'POST'])
 @login_required
 def place_order():
+    """Đặt hàng mới"""
     if current_user.vai_tro != 'customer':
         return redirect(url_for('auth.login'))
     
     if request.method == 'POST':
+        # Lấy dữ liệu từ form
+        dia_chi_lay = request.form.get('dia_chi_lay')
+        dia_chi_giao = request.form.get('dia_chi_giao')
+        loai_hang = request.form.get('loai_hang')
+        can_nang = float(request.form.get('can_nang', 1))
+        ghi_chu = request.form.get('ghi_chu', '')
+        service_type = request.form.get('service_type', 'hoa_toc')
+        gia_tien = float(request.form.get('gia_tien', 35000))
+        
+        # Tạo đơn hàng
         don_hang = DonHang(
             customer_id=current_user.id,
-            dia_chi_lay=request.form.get('dia_chi_lay'),
-            dia_chi_giao=request.form.get('dia_chi_giao'),
-            loai_hang=request.form.get('loai_hang'),
-            can_nang=float(request.form.get('can_nang', 1)),
-            ghi_chu=request.form.get('ghi_chu'),
-            service_type=request.form.get('service_type', 'hoa_toc'),
-            gia_tien=float(request.form.get('gia_tien', 35000)),
+            dia_chi_lay=dia_chi_lay,
+            dia_chi_giao=dia_chi_giao,
+            loai_hang=loai_hang,
+            can_nang=can_nang,
+            ghi_chu=ghi_chu,
+            service_type=service_type,
+            gia_tien=gia_tien,
             phi_dich_vu=0,
             giam_gia=0,
-            tong_tien=float(request.form.get('gia_tien', 35000)),
+            tong_tien=gia_tien,
             trang_thai='cho_duyet',
             ngay_tao=datetime.utcnow()
         )
         
-        # ✅ Commit TRƯỚC để có id (nếu cần)
+        # Generate mã đơn
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        random_num = random.randint(1000, 9999)
+        don_hang.ma_don = f'DH{timestamp}{random_num}'
+        
         db.session.add(don_hang)
-        db.session.commit()  # ← Commit để save vào DB
+        db.session.commit()
         
-        # ✅ Tạo ma_don SAU khi có object
-        don_hang.ma_don = don_hang.generate_ma_don()
-        db.session.commit()  # ← Commit lại để lưu ma_don
-        
-        flash('✅ Đặt hàng thành công!', 'success')
-        return redirect(url_for('customer.my_orders'))
+        flash('✅ Đặt hàng thành công! Mã đơn: ' + don_hang.ma_don, 'success')
+        return redirect(url_for('customer.order_detail', id=don_hang.id))
     
     return render_template('customer/place_order.html')
 
 @bp.route('/my-orders')
 @login_required
 def my_orders():
+    """Xem lịch sử đơn hàng"""
     if current_user.vai_tro != 'customer':
         return redirect(url_for('auth.login'))
     
-    don_hangs = DonHang.query.filter_by(customer_id=current_user.id).order_by(DonHang.ngay_tao.desc()).all()
+    don_hangs = DonHang.query.filter_by(customer_id=current_user.id)\
+        .order_by(DonHang.ngay_tao.desc()).all()
+    
     return render_template('customer/my_orders.html', don_hangs=don_hangs)
 
-# Thêm vào cuối file
-@bp.route('/orders/<int:id>')
+@bp.route('/order/<int:id>')
 @login_required
 def order_detail(id):
+    """Chi tiết đơn hàng"""
     if current_user.vai_tro != 'customer':
         return redirect(url_for('auth.login'))
     
     don_hang = DonHang.query.get_or_404(id)
+    
+    # Check xem đơn này có thuộc về customer này không
     if don_hang.customer_id != current_user.id:
         flash('❌ Bạn không có quyền xem đơn này!', 'error')
         return redirect(url_for('customer.my_orders'))
     
     return render_template('customer/order_detail.html', don_hang=don_hang)
 
-@bp.route('/orders/<int:id>/track')
-@login_required
-def track_order(id):
-    if current_user.vai_tro != 'customer':
-        return redirect(url_for('auth.login'))
-    
-    don_hang = DonHang.query.get_or_404(id)
-    if don_hang.customer_id != current_user.id:
-        flash('❌ Bạn không có quyền!', 'error')
-        return redirect(url_for('customer.my_orders'))
-    
+@bp.route('/track/<ma_don>')
+def track_order(ma_don):
+    """Theo dõi đơn hàng theo mã (public - không cần login)"""
+    don_hang = DonHang.query.filter_by(ma_don=ma_don).first_or_404()
     return render_template('customer/track_order.html', don_hang=don_hang)
 
-@bp.route('/orders/<int:id>/cancel', methods=['POST'])
+@bp.route('/api/orders', methods=['POST'])
 @login_required
-def cancel_order(id):
+def api_create_order():
+    """API endpoint để tạo đơn hàng (cho mobile app)"""
     if current_user.vai_tro != 'customer':
-        return redirect(url_for('auth.login'))
+        return jsonify({'error': 'Unauthorized'}), 401
     
-    don_hang = DonHang.query.get_or_404(id)
-    if don_hang.customer_id != current_user.id:
-        flash('❌ Bạn không có quyền hủy đơn này!', 'error')
-        return redirect(url_for('customer.my_orders'))
+    data = request.get_json()
     
-    if don_hang.trang_thai not in ['cho_duyet', 'da_duyet']:
-        flash('❌ Không thể hủy đơn đã giao cho tài xế!', 'error')
-        return redirect(url_for('customer.order_detail', id=id))
+    don_hang = DonHang(
+        customer_id=current_user.id,
+        dia_chi_lay=data.get('dia_chi_lay'),
+        dia_chi_giao=data.get('dia_chi_giao'),
+        loai_hang=data.get('loai_hang'),
+        can_nang=float(data.get('can_nang', 1)),
+        ghi_chu=data.get('ghi_chu', ''),
+        service_type=data.get('service_type', 'hoa_toc'),
+        gia_tien=float(data.get('gia_tien', 35000)),
+        phi_dich_vu=0,
+        giam_gia=0,
+        tong_tien=float(data.get('gia_tien', 35000)),
+        trang_thai='cho_duyet',
+        ngay_tao=datetime.utcnow()
+    )
     
-    don_hang.trang_thai = 'da_huy'
-    don_hang.ngay_huy = datetime.utcnow()
+    # Generate mã đơn
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    random_num = random.randint(1000, 9999)
+    don_hang.ma_don = f'DH{timestamp}{random_num}'
+    
+    db.session.add(don_hang)
     db.session.commit()
     
-    flash('✅ Đã hủy đơn hàng!', 'success')
-    return redirect(url_for('customer.my_orders'))
+    return jsonify({
+        'success': True,
+        'ma_don': don_hang.ma_don,
+        'id': don_hang.id
+    }), 201

@@ -1,32 +1,46 @@
 {% extends "base.html" %}
 {% block title %}Đơn hàng của tôi{% endblock %}
 {% block content %}
-<h2>📋 Đơn hàng của tôi</h2>
-<a href="{{ url_for('customer.dashboard') }}" class="btn btn-outline-secondary mb-3">← Quay lại</a>
-{% if don_hangs %}
-<table class="table">
-    <thead>
-        <tr>
-            <th>Mã đơn</th>
-            <th>Địa chỉ giao</th>
-            <th>Tổng tiền</th>
-            <th>Trạng thái</th>
-            <th>Ngày tạo</th>
-        </tr>
-    </thead>
-    <tbody>
+<div class="container mt-4">
+    <h2>📋 Đơn hàng của tôi</h2>
+    <a href="{{ url_for('customer.dashboard') }}" class="btn btn-outline-secondary mb-3">← Quay lại</a>
+    
+    {% if don_hangs %}
+    <div class="list-group">
         {% for don in don_hangs %}
-        <tr>
-            <td>{{ don.ma_don or don.id }}</td>
-            <td>{{ don.dia_chi_giao[:30] }}...</td>
-            <td>{{ don.tong_tien | int }}đ</td>
-            <td><span class="badge bg-warning">{{ don.trang_thai }}</span></td>
-            <td>{{ don.ngay_tao.strftime('%d/%m/%Y') }}</td>
-        </tr>
+        <div class="list-group-item mb-2">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">Đơn #{{ don.ma_don }}</h5>
+                <small class="text-muted">{{ don.ngay_tao.strftime('%d/%m/%Y %H:%M') }}</small>
+            </div>
+            <p class="mb-1"><strong>📍 Giao:</strong> {{ don.dia_chi_giao[:60] }}...</p>
+            <p class="mb-1">
+                {% if don.trang_thai == 'cho_duyet' %}
+                <span class="badge bg-warning">⏳ Chờ duyệt</span>
+                {% elif don.trang_thai == 'da_duyet' %}
+                <span class="badge bg-info">✅ Đã duyệt</span>
+                {% elif don.trang_thai == 'dang_giao' %}
+                <span class="badge bg-primary">🚚 Đang giao</span>
+                {% elif don.trang_thai == 'hoan_thanh' %}
+                <span class="badge bg-success">✅ Hoàn thành</span>
+                {% elif don.trang_thai == 'da_huy' %}
+                <span class="badge bg-danger">❌ Đã hủy</span>
+                {% endif %}
+                <span class="ms-2"><strong>{{ "{:,.0f}".format(don.tong_tien) }}đ</strong></span>
+            </p>
+            <a href="{{ url_for('customer.order_detail', id=don.id) }}" class="btn btn-sm btn-outline-primary">
+                👁️ Xem chi tiết
+            </a>
+            <a href="{{ url_for('customer.track_order', ma_don=don.ma_don) }}" class="btn btn-sm btn-outline-info" target="_blank">
+                🔗 Link theo dõi
+            </a>
+        </div>
         {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<div class="alert alert-info">Chưa có đơn hàng nào</div>
-{% endif %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <p class="mb-0">📦 Bạn chưa có đơn hàng nào. <a href="{{ url_for('customer.place_order') }}">Đặt hàng ngay!</a></p>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

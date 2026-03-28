@@ -1,29 +1,35 @@
 {% extends "base.html" %}
-{% block title %}Đơn #{{ don_hang.ma_don or don_hang.id }}{% endblock %}
+{% block title %}Đơn #{{ don_hang.ma_don }}{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <h2>📦 Đơn hàng #{{ don_hang.ma_don or don_hang.id }}</h2>
+    <h2>📦 Chi tiết đơn #{{ don_hang.ma_don }}</h2>
     <a href="{{ url_for('customer.my_orders') }}" class="btn btn-outline-secondary mb-3">← Quay lại</a>
     
     <div class="row">
         <div class="col-md-8">
             <div class="card mb-3">
-                <div class="card-header bg-primary text-white">Thông tin giao hàng</div>
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📍 Thông tin giao hàng</h5>
+                </div>
                 <div class="card-body">
                     <p><strong>🏠 Lấy tại:</strong> {{ don_hang.dia_chi_lay }}</p>
                     <p><strong>🎯 Giao đến:</strong> {{ don_hang.dia_chi_giao }}</p>
-                    <p><strong>📦 Hàng:</strong> {{ don_hang.loai_hang or 'N/A' }}</p>
+                    <p><strong>📦 Loại hàng:</strong> {{ don_hang.loai_hang or 'N/A' }}</p>
+                    <p><strong>⚖️ Cân nặng:</strong> {{ don_hang.can_nang or 'N/A' }} kg</p>
                     <p><strong>📝 Ghi chú:</strong> {{ don_hang.ghi_chu or 'Không có' }}</p>
                 </div>
             </div>
             
             {% if don_hang.tai_xe %}
             <div class="card mb-3 border-success">
-                <div class="card-header bg-success text-white">👨‍✈️ Tài xế</div>
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">👨‍✈️ Tài xế giao hàng</h5>
+                </div>
                 <div class="card-body">
-                    <p><strong>{{ don_hang.tai_xe.user.name }}</strong></p>
-                    <p>📞 {{ don_hang.tai_xe.user.phone }}</p>
-                    <a href="tel:{{ don_hang.tai_xe.user.phone }}" class="btn btn-success btn-sm">Gọi ngay</a>
+                    <p><strong>Tên:</strong> {{ don_hang.tai_xe.user.name }}</p>
+                    <p><strong>SĐT:</strong> {{ don_hang.tai_xe.user.phone }}</p>
+                    <p><strong>Biển số:</strong> {{ don_hang.tai_xe.bien_so or 'N/A' }}</p>
+                    <a href="tel:{{ don_hang.tai_xe.user.phone }}" class="btn btn-success btn-sm">📞 Gọi tài xế</a>
                 </div>
             </div>
             {% endif %}
@@ -31,27 +37,41 @@
         
         <div class="col-md-4">
             <div class="card mb-3">
-                <div class="card-header bg-success text-white">💰 Tổng tiền</div>
+                <div class="card-header">
+                    <h5 class="mb-0">📍 Trạng thái</h5>
+                </div>
                 <div class="card-body text-center">
-                    <h3 class="text-success">{{ don_hang.tong_tien | int }}đ</h3>
+                    {% if don_hang.trang_thai == 'cho_duyet' %}
+                    <span class="badge bg-warning fs-5">⏳ CHỜ DUYỆT</span>
+                    {% elif don_hang.trang_thai == 'hoan_thanh' %}
+                    <span class="badge bg-success fs-5">✅ HOÀN THÀNH</span>
+                    {% else %}
+                    <span class="badge bg-info fs-5">{{ don_hang.trang_thai | upper }}</span>
+                    {% endif %}
+                    <hr>
+                    <p class="mb-1">📝 Tạo: {{ don_hang.ngay_tao.strftime('%d/%m/%Y %H:%M') }}</p>
+                    {% if don_hang.ngay_duyet %}
+                    <p class="mb-1">✅ Duyệt: {{ don_hang.ngay_duyet.strftime('%d/%m/%Y %H:%M') }}</p>
+                    {% endif %}
                 </div>
             </div>
             
             <div class="card mb-3">
-                <div class="card-header">📍 Trạng thái</div>
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">💰 Thanh toán</h5>
+                </div>
                 <div class="card-body">
-                    <span class="badge bg-warning fs-5">{{ don_hang.trang_thai | upper }}</span>
-                    <p class="mt-2 mb-0"><small>{{ don_hang.ngay_tao.strftime('%d/%m/%Y %H:%M') }}</small></p>
+                    <p>Giá dịch vụ: {{ "{:,.0f}".format(don_hang.gia_tien) }}đ</p>
+                    <p>Phí phụ thu: {{ "{:,.0f}".format(don_hang.phi_dich_vu) }}đ</p>
+                    <p>Giảm giá: -{{ "{:,.0f}".format(don_hang.giam_gia) }}đ</p>
+                    <hr>
+                    <h4 class="text-success text-center">{{ "{:,.0f}".format(don_hang.tong_tien) }}đ</h4>
                 </div>
             </div>
             
-            <a href="{{ url_for('customer.track_order', id=don_hang.id) }}" class="btn btn-primary w-100 mb-2">📍 Theo dõi đơn</a>
-            
-            {% if don_hang.trang_thai in ['cho_duyet', 'da_duyet'] %}
-            <form method="POST" action="{{ url_for('customer.cancel_order', id=don_hang.id) }}" onsubmit="return confirm('Hủy đơn?');">
-                <button type="submit" class="btn btn-danger w-100">❌ Hủy đơn</button>
-            </form>
-            {% endif %}
+            <a href="{{ url_for('customer.track_order', ma_don=don_hang.ma_don) }}" class="btn btn-primary w-100" target="_blank">
+                🔗 Chia sẻ link theo dõi
+            </a>
         </div>
     </div>
 </div>

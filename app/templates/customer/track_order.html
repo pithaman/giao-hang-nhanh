@@ -1,51 +1,62 @@
 {% extends "base.html" %}
-{% block title %}Theo dõi đơn #{{ don_hang.ma_don or don_hang.id }}{% endblock %}
+{% block title %}Theo dõi đơn {{ don_hang.ma_don }}{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <h2>📍 Theo dõi đơn #{{ don_hang.ma_don or don_hang.id }}</h2>
-    <a href="{{ url_for('customer.order_detail', id=don_hang.id) }}" class="btn btn-outline-secondary mb-3">← Quay lại</a>
+    <div class="text-center mb-4">
+        <h2>🔍 Theo dõi đơn hàng</h2>
+        <h4 class="text-primary">{{ don_hang.ma_don }}</h4>
+    </div>
     
-    <div class="card">
-        <div class="card-body">
-            <div class="timeline">
-                <div class="step {% if don_hang.ngay_tao %}completed{% endif %}">
-                    <div class="step-icon">📝</div>
-                    <div class="step-content">
-                        <h6>Đơn đã tạo</h6>
-                        <small>{{ don_hang.ngay_tao.strftime('%d/%m %H:%M') if don_hang.ngay_tao else 'Chờ xử lý' }}</small>
-                    </div>
-                </div>
-                <div class="step {% if don_hang.ngay_duyet %}completed{% endif %}">
-                    <div class="step-icon">✅</div>
-                    <div class="step-content">
-                        <h6>Đã duyệt</h6>
-                        <small>{{ don_hang.ngay_duyet.strftime('%d/%m %H:%M') if don_hang.ngay_duyet else 'Chờ duyệt' }}</small>
-                    </div>
-                </div>
-                <div class="step {% if don_hang.ngay_gan %}completed{% endif %}">
-                    <div class="step-icon">👨‍✈️</div>
-                    <div class="step-content">
-                        <h6>Đã gán tài xế</h6>
-                        <small>{{ don_hang.ngay_gan.strftime('%d/%m %H:%M') if don_hang.ngay_gan else 'Chờ gán' }}</small>
-                    </div>
-                </div>
-                <div class="step {% if don_hang.trang_thai == 'hoan_thanh' %}completed{% endif %}">
-                    <div class="step-icon">✅</div>
-                    <div class="step-content">
-                        <h6>Hoàn thành</h6>
-                        <small>{{ don_hang.ngay_hoan_thanh.strftime('%d/%m %H:%M') if don_hang.ngay_hoan_thanh else 'Chờ giao' }}</small>
-                    </div>
-                </div>
+    <div class="card mb-4">
+        <div class="card-body text-center">
+            <h5>Trạng thái hiện tại:</h5>
+            <div class="my-3">
+                {% if don_hang.trang_thai == 'cho_duyet' %}
+                <h3 class="text-warning">⏳ Chờ duyệt</h3>
+                <p>Đơn hàng của bạn đang chờ admin duyệt</p>
+                {% elif don_hang.trang_thai == 'da_duyet' %}
+                <h3 class="text-info">✅ Đã duyệt</h3>
+                <p>Đơn hàng đã được duyệt, chờ gán tài xế</p>
+                {% elif don_hang.trang_thai == 'da_gan' %}
+                <h3 class="text-primary">👨‍✈️ Đã gán tài xế</h3>
+                <p>Tài xế sẽ sớm giao hàng cho bạn</p>
+                {% elif don_hang.trang_thai == 'dang_giao' %}
+                <h3 class="text-success">🚚 Đang giao</h3>
+                <p>Tài xế đang trên đường giao hàng</p>
+                {% elif don_hang.trang_thai == 'hoan_thanh' %}
+                <h3 class="text-success">✅ Hoàn thành</h3>
+                <p>Đơn hàng đã được giao thành công!</p>
+                {% elif don_hang.trang_thai == 'da_huy' %}
+                <h3 class="text-danger">❌ Đã hủy</h3>
+                <p>Đơn hàng đã bị hủy</p>
+                {% endif %}
             </div>
         </div>
     </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">📋 Thông tin đơn hàng</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>🏠 Địa chỉ lấy:</strong> {{ don_hang.dia_chi_lay }}</p>
+            <p><strong>🎯 Địa chỉ giao:</strong> {{ don_hang.dia_chi_giao }}</p>
+            <p><strong>📦 Loại hàng:</strong> {{ don_hang.loai_hang or 'N/A' }}</p>
+            <p><strong>💰 Tổng tiền:</strong> {{ "{:,.0f}".format(don_hang.tong_tien) }}đ</p>
+            <p><strong>📝 Ngày tạo:</strong> {{ don_hang.ngay_tao.strftime('%d/%m/%Y %H:%M') }}</p>
+            
+            {% if don_hang.tai_xe %}
+            <hr>
+            <h6>👨‍✈️ Tài xế giao hàng:</h6>
+            <p><strong>Tên:</strong> {{ don_hang.tai_xe.user.name }}</p>
+            <p><strong>SĐT:</strong> {{ don_hang.tai_xe.user.phone }}</p>
+            <a href="tel:{{ don_hang.tai_xe.user.phone }}" class="btn btn-success btn-sm">📞 Gọi ngay</a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="text-center mt-4">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">← Quay lại trang chủ</a>
+    </div>
 </div>
-
-<style>
-.timeline { padding: 20px 0; }
-.step { display: flex; margin-bottom: 30px; }
-.step-icon { width: 50px; height: 50px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-.step.completed .step-icon { background: #28a745; color: white; }
-.step-content { margin-left: 20px; }
-</style>
 {% endblock %}
