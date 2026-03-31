@@ -1,4 +1,5 @@
 # app/routes/customer.py
+from app.services.email_service import send_order_confirmation_email
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from app.extensions import db
@@ -63,6 +64,16 @@ def place_order():
         
         db.session.add(don_hang)
         db.session.commit()
+
+        try:
+            send_order_confirmation_email(don_hang)
+            print(f"✅ SendGrid email sent to {don_hang.customer.email}")
+        except Exception as e:
+            print(f"⚠️ Email failed: {e}")
+
+        flash('✅ Đặt hàng thành công! Email xác nhận đã được gửi!', 'success')
+        return redirect(url_for('customer.order_detail', id=don_hang.id))
+
         
         flash('✅ Đặt hàng thành công! Mã đơn: ' + don_hang.ma_don, 'success')
         return redirect(url_for('customer.order_detail', id=don_hang.id))
