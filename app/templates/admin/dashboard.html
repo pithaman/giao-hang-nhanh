@@ -6,35 +6,35 @@
     
     <!-- THỐNG KÊ TỔNG QUAN -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h3>{{ tong_don }}</h3>
-                    <p class="mb-0">📦 Tổng đơn hàng</p>
+                <div class="card-body text-center p-3">
+                    <h3 class="mb-0">{{ tong_don }}</h3>
+                    <p class="mb-0 small">📦 Tổng đơn</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h3>{{ "{:,.0f}".format(tong_doanh_thu) }}đ</h3>
-                    <p class="mb-0">💰 Tổng doanh thu</p>
+                <div class="card-body text-center p-3">
+                    <h3 class="mb-0">{{ "{:,.0f}".format(tong_doanh_thu) }}đ</h3>
+                    <p class="mb-0 small">💰 Doanh thu</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h3>{{ tong_khach }}</h3>
-                    <p class="mb-0">👥 Tổng khách hàng</p>
+                <div class="card-body text-center p-3">
+                    <h3 class="mb-0">{{ tong_khach }}</h3>
+                    <p class="mb-0 small">👥 Khách hàng</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card bg-warning text-dark">
-                <div class="card-body">
-                    <h3>{{ tong_tai_xe }}</h3>
-                    <p class="mb-0">🚗 Tổng tài xế</p>
+                <div class="card-body text-center p-3">
+                    <h3 class="mb-0">{{ tong_tai_xe }}</h3>
+                    <p class="mb-0 small">🚗 Tài xế</p>
                 </div>
             </div>
         </div>
