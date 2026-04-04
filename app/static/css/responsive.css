@@ -1,27 +1,38 @@
-/* app/static/css/responsive.css */
+/* =====================================
+   RESPONSIVE STYLES - MOBILE FIRST
+   ===================================== */
 
-/* Mobile First - Max width 768px */
+/* === MOBILE (Max 768px) === */
 @media (max-width: 768px) {
     
-    /* === NAVIGATION === */
-    .navbar-brand {
-        font-size: 1.2rem;
+    /* Container padding */
+    .container, .container-fluid {
+        padding-left: 15px;
+        padding-right: 15px;
     }
     
-    .navbar-nav {
-        margin-top: 10px;
-    }
+    /* Headings */
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+    h4 { font-size: 1.1rem; }
     
-    /* === CARDS === */
+    /* Cards */
     .card {
         margin-bottom: 15px;
+        border-radius: 8px;
     }
     
     .card-body {
         padding: 15px;
     }
     
-    /* === TABLES === */
+    /* Dashboard stats cards - 2 columns on mobile */
+    .row > [class*="col-"] {
+        margin-bottom: 15px;
+    }
+    
+    /* Tables - scrollable */
     .table-responsive {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -29,6 +40,7 @@
     
     table {
         font-size: 0.875rem;
+        min-width: 600px;
     }
     
     th, td {
@@ -36,7 +48,7 @@
         white-space: nowrap;
     }
     
-    /* === BUTTONS === */
+    /* Buttons */
     .btn {
         padding: 10px 15px;
         font-size: 0.9rem;
@@ -51,88 +63,91 @@
     .btn-lg {
         padding: 12px 20px;
         font-size: 1rem;
+        width: 100%;
     }
     
-    /* === FORMS === */
+    /* Forms */
     .form-control, .form-select {
         font-size: 16px; /* Prevent zoom on iOS */
+        padding: 10px 12px;
     }
     
     .form-label {
         font-size: 0.9rem;
         margin-bottom: 5px;
+        font-weight: 600;
     }
     
-    /* === DASHBOARD STATS === */
-    .row > [class*="col-"] {
-        margin-bottom: 15px;
+    /* Navigation */
+    .navbar-brand {
+        font-size: 1.2rem;
     }
     
-    /* === HEADINGS === */
-    h1 { font-size: 1.75rem; }
-    h2 { font-size: 1.5rem; }
-    h3 { font-size: 1.25rem; }
-    h4 { font-size: 1.1rem; }
-    
-    /* === ADMIN DASHBOARD CARDS === */
-    .card.bg-primary h3,
-    .card.bg-success h3,
-    .card.bg-info h3,
-    .card.bg-warning h3 {
-        font-size: 2rem;
+    .navbar-nav {
+        margin-top: 10px;
     }
     
-    /* === ORDER TRACKING === */
-    .order-info {
-        padding: 15px;
+    .nav-item {
+        margin-bottom: 5px;
     }
     
-    /* === FOOTER === */
+    /* Badges */
+    .badge {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+    }
+    
+    /* Flash messages */
+    .alert {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    /* Footer */
     footer {
         text-align: center;
         padding: 20px 10px;
+        font-size: 0.85rem;
     }
 }
 
-/* Small devices (landscape phones, 576px and up) */
+/* === SMALL MOBILE (Max 576px) === */
 @media (max-width: 576px) {
     
-    /* === CONTAINER === */
-    .container, .container-fluid {
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-    
-    /* === NAVIGATION === */
-    .navbar-toggler {
-        padding: 5px 10px;
-        font-size: 1rem;
-    }
-    
-    /* === BUTTONS - Full width on mobile === */
+    /* Full width buttons */
     .btn-block-mobile {
         display: block;
         width: 100%;
         margin-bottom: 10px;
     }
     
-    /* === CARDS === */
-    .card {
-        border-radius: 8px;
+    /* Stack columns */
+    .row > .col-md-4,
+    .row > .col-md-6,
+    .row > .col-md-8 {
+        width: 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
     }
     
-    /* === BADGES === */
-    .badge {
-        padding: 5px 10px;
-        font-size: 0.75rem;
+    /* Dashboard cards - 2 per row */
+    .col-md-3 {
+        width: 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
     }
     
-    /* === PLACE ORDER FORM === */
-    textarea.form-control {
-        min-height: 80px;
+    /* Pricing box */
+    .sticky-top {
+        position: static;
     }
     
-    /* === ORDER STATUS === */
+    /* Order tracking */
+    .order-info {
+        padding: 15px;
+    }
+    
+    /* Status badges */
     .status-badge {
         display: inline-block;
         padding: 8px 15px;
@@ -141,49 +156,38 @@
     }
 }
 
-/* Extra small devices (phones, less than 576px) */
+/* === EXTRA SMALL (Max 480px) === */
 @media (max-width: 480px) {
     
-    /* === TEXT SIZES === */
     body {
         font-size: 14px;
     }
     
-    /* === HEADINGS === */
     h1 { font-size: 1.5rem; }
     h2 { font-size: 1.3rem; }
     
-    /* === BUTTONS === */
-    .btn {
-        padding: 8px 12px;
-        font-size: 0.85rem;
-    }
-    
-    /* === CARDS === */
     .card-body {
         padding: 12px;
     }
     
-    /* === NAVIGATION === */
     .navbar-brand {
         font-size: 1rem;
     }
     
-    /* === TABLE === */
     table {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
     
-    /* === FORM === */
-    .form-control {
+    .btn {
         padding: 8px 12px;
+        font-size: 0.85rem;
     }
 }
 
-/* === TOUCH TARGETS === */
-/* Ensure minimum touch target size of 44x44px */
+/* === TOUCH TARGETS (Mobile devices) === */
 @media (hover: none) and (pointer: coarse) {
     
+    /* Minimum touch target: 44x44px */
     a, button, input, select, textarea {
         min-height: 44px;
         min-width: 44px;
@@ -204,12 +208,18 @@
         min-height: 44px;
         padding: 12px 15px;
     }
+    
+    /* Nav links */
+    .nav-link {
+        min-height: 44px;
+        padding: 12px 15px;
+    }
 }
 
 /* === PRINT STYLES === */
 @media print {
     
-    .navbar, .btn, footer {
+    .navbar, .btn, footer, .alert {
         display: none !important;
     }
     
@@ -220,5 +230,37 @@
     
     body {
         font-size: 12pt;
+    }
+    
+    .container {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* === UTILITY CLASSES === */
+
+/* Mobile-only display */
+.d-mobile-only {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .d-mobile-only {
+        display: block;
+    }
+    .d-desktop-only {
+        display: none;
+    }
+}
+
+/* Hide scrollbar on mobile */
+@media (max-width: 768px) {
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
     }
 }

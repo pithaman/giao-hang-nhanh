@@ -5,9 +5,10 @@
     <h2>📦 Đặt hàng mới</h2>
     <a href="{{ url_for('customer.dashboard') }}" class="btn btn-outline-secondary mb-3">← Quay lại</a>
     
-    <div class="row">
-        <div class="col-md-8">
-            <form method="POST">
+    <form method="POST" id="placeOrderForm">
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Thông tin giao hàng -->
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">📍 Thông tin giao hàng</h5>
@@ -15,12 +16,12 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label">🏠 Địa chỉ lấy hàng *</label>
-                            <textarea name="dia_chi_lay" class="form-control" rows="2" required placeholder="Số nhà, đường, quận/huyện..."></textarea>
+                            <textarea name="dia_chi_lay" id="dia_chi_lay" class="form-control" rows="2" required placeholder="Số nhà, đường, quận/huyện..."></textarea>
                         </div>
                         
                         <div class="mb-3">
                             <label class="form-label">🎯 Địa chỉ giao hàng *</label>
-                            <textarea name="dia_chi_giao" class="form-control" rows="2" required placeholder="Số nhà, đường, quận/huyện..."></textarea>
+                            <textarea name="dia_chi_giao" id="dia_chi_giao" class="form-control" rows="2" required placeholder="Số nhà, đường, quận/huyện..."></textarea>
                         </div>
                         
                         <div class="row">
@@ -35,23 +36,23 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">⚖️ Cân nặng (kg)</label>
-                                <input type="number" name="can_nang" class="form-control" value="1" step="0.1" min="0.1">
+                                <label class="form-label">⚖️ Cân nặng (kg) *</label>
+                                <input type="number" name="can_nang" id="can_nang" class="form-control" value="1" step="0.1" min="0.1" required>
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label">🚚 Loại dịch vụ</label>
+                            <label class="form-label">🚚 Loại dịch vụ *</label>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="service_type" value="hoa_toc" id="hoa_toc" checked>
+                                <input class="form-check-input" type="radio" name="service_type" value="hoa_toc" id="hoa_toc" checked onchange="calculatePrice()">
                                 <label class="form-check-label" for="hoa_toc">
-                                    ⚡ Giao hỏa tốc (2h) - 35,000đ
+                                    ⚡ Giao hỏa tốc (2h) - Phí +50%
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="service_type" value="trong_ngay" id="trong_ngay">
+                                <input class="form-check-input" type="radio" name="service_type" value="trong_ngay" id="trong_ngay" onchange="calculatePrice()">
                                 <label class="form-check-label" for="trong_ngay">
-                                    🌞 Giao trong ngày (4-6h) - 25,000đ
+                                    🌞 Giao trong ngày (4-6h) - Giá tiêu chuẩn
                                 </label>
                             </div>
                         </div>
@@ -62,40 +63,130 @@
                         </div>
                     </div>
                 </div>
-                
-                <div class="card mb-3">
+            </div>
+            
+            <!-- Cột bên phải - Pricing -->
+            <div class="col-md-4">
+                <div class="card mb-3 sticky-top" style="top: 20px;">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">💰 Thanh toán</h5>
+                        <h5 class="mb-0">💰 Dự kiến giá cước</h5>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">💵 Giá dịch vụ (đ)</label>
-                            <input type="number" name="gia_tien" class="form-control" value="35000" min="10000" step="1000">
+                    <div class="card-body" id="pricingDetails">
+                        <div class="text-center text-muted" id="noPrice">
+                            <p>Nhập địa chỉ để xem giá</p>
                         </div>
-                        <button type="submit" class="btn btn-success btn-lg w-100">
-                            ✅ Đặt hàng ngay
-                        </button>
+                        
+                        <div id="priceContent" style="display: none;">
+                            <div class="mb-2">
+                                <small class="text-muted">📏 Khoảng cách:</small>
+                                <strong id="distance">-</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">💵 Giá cơ bản:</small>
+                                <span id="baseFare">-</span>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">📏 Phí khoảng cách:</small>
+                                <span id="distanceFee">-</span>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">⚖️ Phí cân nặng:</small>
+                                <span id="weightFee">-</span>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">⚡ Phí dịch vụ:</small>
+                                <span id="serviceFee">-</span>
+                            </div>
+                            <hr>
+                            <div class="text-center">
+                                <h4 class="text-success" id="totalPrice">-</h4>
+                                <small class="text-muted">Đã bao gồm VAT</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </form>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">ℹ️ Hướng dẫn</h5>
-                </div>
-                <div class="card-body">
-                    <ol class="mb-0">
-                        <li>Điền địa chỉ lấy và giao hàng</li>
-                        <li>Chọn loại hàng và cân nặng</li>
-                        <li>Chọn loại dịch vụ giao</li>
-                        <li>Nhập ghi chú (nếu có)</li>
-                        <li>Nhấn "Đặt hàng ngay"</li>
-                    </ol>
-                </div>
+                
+                <button type="submit" class="btn btn-success btn-lg w-100" id="submitBtn" disabled>
+                    ✅ Đặt hàng ngay
+                </button>
             </div>
         </div>
-    </div>
+    </form>
 </div>
+
+<script>
+// Debounce function to limit API calls
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Calculate price function
+async function calculatePrice() {
+    const pickup = document.getElementById('dia_chi_lay').value;
+    const delivery = document.getElementById('dia_chi_giao').value;
+    const weight = document.getElementById('can_nang').value;
+    const serviceType = document.querySelector('input[name="service_type"]:checked').value;
+    
+    // Check if addresses are filled
+    if (pickup.length < 10 || delivery.length < 10) {
+        document.getElementById('noPrice').style.display = 'block';
+        document.getElementById('priceContent').style.display = 'none';
+        document.getElementById('submitBtn').disabled = true;
+        return;
+    }
+    
+    try {
+        const response = await fetch('/customer/api/calculate-price', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                pickup: pickup,
+                delivery: delivery,
+                weight: weight,
+                service_type: serviceType
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update pricing display
+            document.getElementById('noPrice').style.display = 'none';
+            document.getElementById('priceContent').style.display = 'block';
+            
+            document.getElementById('distance').textContent = data.pricing.distance_km + ' km';
+            document.getElementById('baseFare').textContent = data.pricing.base_fare.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('distanceFee').textContent = data.pricing.distance_fee.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('weightFee').textContent = data.pricing.weight_fee.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('serviceFee').textContent = data.pricing.service_fee.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('totalPrice').textContent = data.formatted_total;
+            
+            document.getElementById('submitBtn').disabled = false;
+        }
+    } catch (error) {
+        console.error('Error calculating price:', error);
+    }
+}
+
+// Debounced calculate price
+const debouncedCalculatePrice = debounce(calculatePrice, 1000);
+
+// Add event listeners
+document.getElementById('dia_chi_lay').addEventListener('input', debouncedCalculatePrice);
+document.getElementById('dia_chi_giao').addEventListener('input', debouncedCalculatePrice);
+document.getElementById('can_nang').addEventListener('input', debouncedCalculatePrice);
+
+// Initial calculation
+calculatePrice();
+</script>
 {% endblock %}
