@@ -2,7 +2,18 @@
 {% block title %}Admin Dashboard - Thống kê{% endblock %}
 {% block content %}
 <div class="container-fluid mt-4">
-    <h2 class="mb-4">📊 Dashboard Thống Kê</h2>
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <h2 class="mb-2 mb-md-0">📊 Dashboard Thống Kê</h2>
+        <div>
+            <a href="{{ url_for('admin.reports') }}" class="btn btn-success me-2">
+                📊 Báo cáo Excel
+            </a>
+            <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-primary">
+                📦 Quản lý đơn
+            </a>
+        </div>
+    </div>
     
     <!-- THỐNG KÊ TỔNG QUAN -->
     <div class="row mb-4">
@@ -42,7 +53,7 @@
     
     <!-- ĐƠN THEO TRẠNG THÁI -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card border-warning">
                 <div class="card-body text-center">
                     <h4 class="text-warning">{{ don_cho_duyet }}</h4>
@@ -51,7 +62,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card border-info">
                 <div class="card-body text-center">
                     <h4 class="text-info">{{ don_dang_giao }}</h4>
@@ -59,7 +70,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card border-success">
                 <div class="card-body text-center">
                     <h4 class="text-success">{{ don_hoan_thanh }}</h4>
@@ -67,7 +78,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card border-danger">
                 <div class="card-body text-center">
                     <h4 class="text-danger">{{ don_da_huy }}</h4>
@@ -77,70 +88,112 @@
         </div>
     </div>
     
-    <div class="row">
-        <!-- ĐƠN THEO NGÀY -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
+    <!-- 3 BIỂU ĐỒ CÙNG HÀNG -->
+    <div class="row mb-4">
+        <!-- LINE CHART - ĐƠN HÀNG -->
+        <div class="col-12 col-md-4 mb-4">
+            <div class="card h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">📈 Đơn hàng theo ngày (7 ngày gần nhất)</h5>
+                    <h5 class="mb-0">📈 Đơn hàng theo ngày</h5>
+                </div>
+                <div class="card-body" style="position: relative; height: 300px;">
+                    <canvas id="chartDonTheoNgay"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- BAR CHART - DOANH THU -->
+        <div class="col-12 col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">💰 Doanh thu</h5>
+                </div>
+                <div class="card-body" style="position: relative; height: 300px;">
+                    <canvas id="chartDoanhThu"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- DOUGHNUT CHART - TRẠNG THÁI (LEGEND BÊN PHẢI) -->
+        <div class="col-12 col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">📊 Trạng thái</h5>
+                </div>
+                <div class="card-body" style="position: relative; height: 300px;">
+                    <canvas id="chartTrangThai"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- TOP TÀI XẾ & CHI TIẾT -->
+    <div class="row mb-4">
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">🏆 Top 5 tài xế</h5>
                 </div>
                 <div class="card-body">
-                    {% if don_theo_ngay %}
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Ngày</th>
-                                <th>Số đơn</th>
-                                <th>Doanh thu</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in don_theo_ngay %}
-                            <tr>
-                                <td>{{ item.ngay }}</td>
-                                <td><span class="badge bg-primary">{{ item.so_don }}</span></td>
-                                <td>{{ "{:,.0f}".format(item.doanh_thu or 0) }}đ</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    {% if top_tai_xe %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Tên</th>
+                                    <th>Tổng đơn</th>
+                                    <th>Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tx in top_tai_xe %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ tx.name }}</td>
+                                    <td><span class="badge bg-success">{{ tx.tong_don or 0 }}</span></td>
+                                    <td>⭐ {{ tx.rating or 0 }}/5.0</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                     {% else %}
-                    <p class="text-muted text-center">Chưa có dữ liệu</p>
+                    <p class="text-muted text-center">Chưa có tài xế</p>
                     {% endif %}
                 </div>
             </div>
         </div>
         
-        <!-- TOP TÀI XẾ -->
-        <div class="col-md-6 mb-4">
+        <div class="col-12 col-md-6 mb-4">
             <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">🏆 Top 5 tài xế hiệu suất</h5>
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📋 Chi tiết theo ngày</h5>
                 </div>
                 <div class="card-body">
-                    {% if top_tai_xe %}
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Tên</th>
-                                <th>Tổng đơn</th>
-                                <th>Rating</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for tx in top_tai_xe %}
-                            <tr>
-                                <td>{{ loop.index }}</td>
-                                <td>{{ tx.name }}</td>
-                                <td><span class="badge bg-success">{{ tx.tong_don or 0 }}</span></td>
-                                <td>⭐ {{ tx.rating or 0 }}/5.0</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    {% if don_theo_ngay_labels %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Số đơn</th>
+                                    <th>Doanh thu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(don_theo_ngay_labels|length) %}
+                                <tr>
+                                    <td>{{ don_theo_ngay_labels[i] }}</td>
+                                    <td><span class="badge bg-primary">{{ don_theo_ngay_so_don[i] }}</span></td>
+                                    <td>{{ "{:,.0f}".format(don_theo_ngay_doanh_thu[i]) }}đ</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                     {% else %}
-                    <p class="text-muted text-center">Chưa có tài xế nào</p>
+                    <p class="text-muted text-center">Chưa có dữ liệu</p>
                     {% endif %}
                 </div>
             </div>
@@ -151,58 +204,234 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">📦 Đơn hàng mới nhất</h5>
-                    <a href="{{ url_for('admin.orders') }}" class="btn btn-sm btn-light">Xem tất cả</a>
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center flex-wrap">
+                    <h5 class="mb-2 mb-md-0">📦 Đơn hàng mới nhất</h5>
+                    <div>
+                        <a href="{{ url_for('admin.reports') }}" class="btn btn-sm btn-success me-2">
+                            📊 Export Excel
+                        </a>
+                        <a href="{{ url_for('admin.orders') }}" class="btn btn-sm btn-light">
+                            Xem tất cả
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     {% if don_moi_nhat %}
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Mã đơn</th>
-                                <th>Khách hàng</th>
-                                <th>Địa chỉ giao</th>
-                                <th>Tổng tiền</th>
-                                <th>Trạng thái</th>
-                                <th>Ngày tạo</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for don in don_moi_nhat %}
-                            <tr>
-                                <td>{{ don.ma_don or don.id }}</td>
-                                <td>{{ don.customer.name }}</td>
-                                <td>{{ don.dia_chi_giao[:30] }}...</td>
-                                <td>{{ "{:,.0f}".format(don.tong_tien) }}đ</td>
-                                <td>
-                                    {% if don.trang_thai == 'cho_duyet' %}
-                                    <span class="badge bg-warning">{{ don.trang_thai }}</span>
-                                    {% elif don.trang_thai == 'da_duyet' %}
-                                    <span class="badge bg-info">{{ don.trang_thai }}</span>
-                                    {% elif don.trang_thai == 'hoan_thanh' %}
-                                    <span class="badge bg-success">{{ don.trang_thai }}</span>
-                                    {% elif don.trang_thai == 'da_huy' %}
-                                    <span class="badge bg-danger">{{ don.trang_thai }}</span>
-                                    {% else %}
-                                    <span class="badge bg-secondary">{{ don.trang_thai }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ don.ngay_tao.strftime('%d/%m %H:%M') }}</td>
-                                <td>
-                                    <a href="{{ url_for('admin.order_detail', id=don.id) }}" class="btn btn-sm btn-outline-primary">Xem</a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th>Địa chỉ giao</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for don in don_moi_nhat %}
+                                <tr>
+                                    <td>{{ don.ma_don or don.id }}</td>
+                                    <td>{{ don.customer.name }}</td>
+                                    <td>{{ don.dia_chi_giao[:30] }}...</td>
+                                    <td>{{ "{:,.0f}".format(don.tong_tien) }}đ</td>
+                                    <td>
+                                        {% if don.trang_thai == 'cho_duyet' %}
+                                        <span class="badge bg-warning">{{ don.trang_thai }}</span>
+                                        {% elif don.trang_thai == 'da_duyet' %}
+                                        <span class="badge bg-info">{{ don.trang_thai }}</span>
+                                        {% elif don.trang_thai == 'hoan_thanh' %}
+                                        <span class="badge bg-success">{{ don.trang_thai }}</span>
+                                        {% elif don.trang_thai == 'da_huy' %}
+                                        <span class="badge bg-danger">{{ don.trang_thai }}</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ don.trang_thai }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ don.ngay_tao.strftime('%d/%m %H:%M') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin.order_detail', id=don.id) }}" class="btn btn-sm btn-outline-primary">Xem</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                     {% else %}
-                    <p class="text-muted text-center">Chưa có đơn hàng nào</p>
+                    <p class="text-muted text-center">Chưa có đơn hàng</p>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+// Wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ========================================
+    // BIỂU ĐỒ ĐƠN HÀNG (LINE CHART)
+    // ========================================
+    const ctxDon = document.getElementById('chartDonTheoNgay');
+    if (ctxDon) {
+        new Chart(ctxDon, {
+            type: 'line',
+            data: {
+                labels: {{ don_theo_ngay_labels | tojson | default('[]') }},
+                datasets: [{
+                    label: 'Số đơn',
+                    data: {{ don_theo_ngay_so_don | tojson | default('[]') }},
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: 'rgb(59, 130, 246)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        enabled: true,
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // ========================================
+    // BIỂU ĐỒ DOANH THU (BAR CHART)
+    // ========================================
+    const ctxDoanhThu = document.getElementById('chartDoanhThu');
+    if (ctxDoanhThu) {
+        new Chart(ctxDoanhThu, {
+            type: 'bar',
+            data: {
+                labels: {{ don_theo_ngay_labels | tojson | default('[]') }},
+                datasets: [{
+                    label: 'Doanh thu (đ)',
+                    data: {{ don_theo_ngay_doanh_thu | tojson | default('[]') }},
+                    backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                    borderColor: 'rgb(34, 197, 94)',
+                    borderWidth: 2,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y.toLocaleString('vi-VN') + 'đ';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    // ========================================
+    // BIỂU ĐỒ TRẠNG THÁI (DOUGHNUT - LEGEND BÊN PHẢI)
+    // ========================================
+    const ctxTrangThai = document.getElementById('chartTrangThai');
+    if (ctxTrangThai) {
+        new Chart(ctxTrangThai, {
+            type: 'doughnut',
+            data: {
+                labels: ['Chờ duyệt', 'Đã duyệt', 'Đang giao', 'Hoàn thành', 'Đã hủy'],
+                datasets: [{
+                    data: [
+                        {{ don_cho_duyet | default(0) }},
+                        {{ don_da_duyet | default(0) }},
+                        {{ don_dang_giao | default(0) }},
+                        {{ don_hoan_thanh | default(0) }},
+                        {{ don_da_huy | default(0) }}
+                    ],
+                    backgroundColor: [
+                        'rgb(251, 191, 36)',  // Yellow
+                        'rgb(59, 130, 246)',  // Blue
+                        'rgb(16, 185, 129)',  // Teal
+                        'rgb(34, 197, 94)',   // Green
+                        'rgb(239, 68, 68)'    // Red
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',  // ✅ LEGEND BÊN PHẢI NHƯ MẪU
+                        display: true,
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return label + ': ' + value + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

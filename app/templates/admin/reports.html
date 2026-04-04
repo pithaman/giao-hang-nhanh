@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Báo cáo & Export Excel{% endblock %}
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📊 Báo cáo & Export Excel</h2>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">← Quay lại Dashboard</a>
+    </div>
+    
+    <div class="row">
+        <!-- EXPORT ĐƠN HÀNG CHI TIẾT -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📦 Export Đơn Hàng Chi Tiết</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.export_excel') }}">
+                        <div class="mb-3">
+                            <label class="form-label">📅 Từ ngày</label>
+                            <input type="date" name="date_from" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">📅 Đến ngày</label>
+                            <input type="date" name="date_to" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">📍 Trạng thái</label>
+                            <select name="status" class="form-select">
+                                <option value="all">Tất cả</option>
+                                <option value="cho_duyet">⏳ Chờ duyệt</option>
+                                <option value="da_duyet">✅ Đã duyệt</option>
+                                <option value="dang_giao">🚚 Đang giao</option>
+                                <option value="hoan_thanh">✅ Hoàn thành</option>
+                                <option value="da_huy">❌ Đã hủy</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">👤 Khách hàng (ID)</label>
+                            <input type="number" name="customer_id" class="form-control" placeholder="Để trống để lấy tất cả">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            📥 Export Excel
+                        </button>
+                    </form>
+                    <small class="text-muted d-block mt-2">
+                        💡 File Excel sẽ chứa: Mã đơn, khách hàng, địa chỉ, giá tiền, trạng thái, tài xế...
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- EXPORT BÁO CÁO TỔNG HỢP -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">📈 Export Báo Cáo Tổng Hợp</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.export_summary') }}">
+                        <div class="mb-3">
+                            <label class="form-label">📅 Từ ngày</label>
+                            <input type="date" name="date_from" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">📅 Đến ngày</label>
+                            <input type="date" name="date_to" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-info w-100 text-white">
+                            📊 Export Thống Kê
+                        </button>
+                    </form>
+                    <small class="text-muted d-block mt-2">
+                        💡 File Excel sẽ chứa: Tổng đơn, doanh thu, thống kê theo trạng thái (2 sheets)
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- HƯỚNG DẪN -->
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">ℹ️ Hướng dẫn sử dụng</h5>
+        </div>
+        <div class="card-body">
+            <ol>
+                <li><strong>Chọn khoảng ngày:</strong> Filter đơn hàng theo thời gian</li>
+                <li><strong>Chọn trạng thái:</strong> Lọc theo trạng thái đơn (tùy chọn)</li>
+                <li><strong>Nhập customer ID:</strong> Lọc theo khách hàng cụ thể (tùy chọn)</li>
+                <li><strong>Click Export:</strong> File Excel sẽ được tải về máy</li>
+                <li><strong>Mở file:</strong> Dùng Excel hoặc Google Sheets để xem</li>
+            </ol>
+            <hr>
+            <h6>📋 Columns trong file Excel chi tiết:</h6>
+            <ul class="small">
+                <li>Mã đơn, Khách hàng, Email, SĐT</li>
+                <li>Địa chỉ lấy/giao, Loại hàng, Cân nặng</li>
+                <li>Dịch vụ, Giá cơ bản, Phí dịch vụ, Giảm giá, Tổng tiền</li>
+                <li>Trạng thái, Ngày tạo, Ngày duyệt, Tài xế</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,10 +1,12 @@
 # app/routes/admin.py
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file
 from flask_login import login_required, current_user
 from app.extensions import db
 from app.models import DonHang, TaiXe, User
 from datetime import datetime, timedelta
 from sqlalchemy import func
+import pandas as pd
+import io
 
 bp = Blueprint('admin', __name__)
 
@@ -28,30 +30,40 @@ def dashboard():
     
     # Đơn theo trạng thái
     don_cho_duyet = DonHang.query.filter_by(trang_thai='cho_duyet').count()
+    don_da_duyet = DonHang.query.filter_by(trang_thai='da_duyet').count()
     don_dang_giao = DonHang.query.filter_by(trang_thai='dang_giao').count()
     don_hoan_thanh = DonHang.query.filter_by(trang_thai='hoan_thanh').count()
     don_da_huy = DonHang.query.filter_by(trang_thai='da_huy').count()
     
-    # === ĐƠN THEO NGÀY (7 NGÀY GẦN NHẤT) ===
+    # === ĐƠN THEO NGÀY (7 NGÀY GẦN NHẤT) - CHO CHART ===
     ngay_gan_nhat = datetime.utcnow() - timedelta(days=7)
-    don_theo_ngay = db.session.query(
+    don_theo_ngay_query = db.session.query(
         func.date(DonHang.ngay_tao).label('ngay'),
         func.count(DonHang.id).label('so_don'),
         func.sum(DonHang.tong_tien).label('doanh_thu')
     ).filter(
         DonHang.ngay_tao >= ngay_gan_nhat
-    ).group_by(func.date(DonHang.ngay_tao)).all()
+    ).group_by(func.date(DonHang.ngay_tao)).order_by(func.date(DonHang.ngay_tao)).all()
+    
+    # Format data cho Chart.js
+    don_theo_ngay_labels = []
+    don_theo_ngay_so_don = []
+    don_theo_ngay_doanh_thu = []
+    
+    for item in don_theo_ngay_query:
+        don_theo_ngay_labels.append(item.ngay.strftime('%d/%m'))
+        don_theo_ngay_so_don.append(item.so_don)
+        don_theo_ngay_doanh_thu.append(item.doanh_thu or 0)
     
     # === TOP TÀI XẾ HIỆU SUẤT ===
     top_tai_xe = db.session.query(
         TaiXe.id,
         User.name,
         func.count(DonHang.id).label('tong_don'),
-        TaiXe.rating,
-        TaiXe.tong_don
+        TaiXe.rating
     ).join(User, TaiXe.user_id == User.id
     ).outerjoin(DonHang, DonHang.tai_xe_id == TaiXe.id
-    ).group_by(TaiXe.id, User.name, TaiXe.rating, TaiXe.tong_don
+    ).group_by(TaiXe.id, User.name, TaiXe.rating
     ).order_by(func.count(DonHang.id).desc()
     ).limit(5).all()
     
@@ -64,10 +76,13 @@ def dashboard():
         tong_tai_xe=tong_tai_xe,
         tong_doanh_thu=tong_doanh_thu,
         don_cho_duyet=don_cho_duyet,
+        don_da_duyet=don_da_duyet,
         don_dang_giao=don_dang_giao,
         don_hoan_thanh=don_hoan_thanh,
         don_da_huy=don_da_huy,
-        don_theo_ngay=don_theo_ngay,
+        don_theo_ngay_labels=don_theo_ngay_labels,
+        don_theo_ngay_so_don=don_theo_ngay_so_don,
+        don_theo_ngay_doanh_thu=don_theo_ngay_doanh_thu,
         top_tai_xe=top_tai_xe,
         don_moi_nhat=don_moi_nhat
     )
@@ -185,3 +200,178 @@ def reject_driver(id):
     
     flash('❌ Đã từ chối tài xế!', 'warning')
     return redirect(url_for('admin.drivers'))
+
+# ========================================
+# EXCEL EXPORT ROUTES
+# ========================================
+
+@bp.route('/reports')
+@login_required
+def reports():
+    """Trang báo cáo - Export Excel"""
+    if current_user.vai_tro != 'admin':
+        flash('❌ Bạn không có quyền!', 'error')
+        return redirect(url_for('auth.login'))
+    
+    return render_template('admin/reports.html')
+
+@bp.route('/reports/export', methods=['POST'])
+@login_required
+def export_excel():
+    """Export đơn hàng ra file Excel"""
+    if current_user.vai_tro != 'admin':
+        return redirect(url_for('auth.login'))
+    
+    # Lấy filter từ form
+    date_from = request.form.get('date_from')
+    date_to = request.form.get('date_to')
+    status = request.form.get('status', '')
+    customer_id = request.form.get('customer_id', '')
+    
+    # Build query
+    query = DonHang.query
+    
+    # Filter theo ngày
+    if date_from and date_from.strip():
+        query = query.filter(DonHang.ngay_tao >= datetime.strptime(date_from, '%Y-%m-%d'))
+    if date_to and date_to.strip():
+        query = query.filter(DonHang.ngay_tao <= datetime.strptime(date_to, '%Y-%m-%d') + timedelta(days=1))
+    
+    # Filter theo trạng thái
+    if status and status != 'all' and status.strip():
+        query = query.filter(DonHang.trang_thai == status)
+    
+    # Filter theo customer
+    if customer_id and customer_id.strip() and customer_id != '0':
+        query = query.filter(DonHang.customer_id == customer_id)
+    
+    # Execute query
+    don_hangs = query.order_by(DonHang.ngay_tao.desc()).all()
+    
+    # Convert to list of dicts
+    data = []
+    for don in don_hangs:
+        data.append({
+            'Mã đơn': don.ma_don or f'#{don.id}',
+            'Khách hàng': don.customer.name,
+            'Email': don.customer.email,
+            'SĐT': don.customer.phone,
+            'Địa chỉ lấy': don.dia_chi_lay,
+            'Địa chỉ giao': don.dia_chi_giao,
+            'Loại hàng': don.loai_hang or 'N/A',
+            'Cân nặng (kg)': don.can_nang,
+            'Dịch vụ': 'Hỏa tốc' if don.service_type == 'hoa_toc' else 'Trong ngày',
+            'Giá cơ bản': don.gia_tien,
+            'Phí dịch vụ': don.phi_dich_vu,
+            'Giảm giá': don.giam_gia,
+            'Tổng tiền': don.tong_tien,
+            'Trạng thái': don.trang_thai,
+            'Ngày tạo': don.ngay_tao.strftime('%d/%m/%Y %H:%M'),
+            'Ngày duyệt': don.ngay_duyet.strftime('%d/%m/%Y %H:%M') if don.ngay_duyet else '',
+            'Tài xế': don.tai_xe.user.name if don.tai_xe else 'Chưa gán',
+        })
+    
+    # Create DataFrame
+    df = pd.DataFrame(data)
+    
+    # Create Excel file in memory
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='DonHang')
+        
+        # Auto-adjust column width
+        worksheet = writer.sheets['DonHang']
+        for column in worksheet.columns:
+            max_length = 0
+            column_letter = column[0].column_letter
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            adjusted_width = min(max_length + 2, 50)
+            worksheet.column_dimensions[column_letter].width = adjusted_width
+    
+    output.seek(0)
+    
+    # Generate filename
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f'BaoCao_DonHang_{timestamp}.xlsx'
+    
+    # Send file
+    return send_file(
+        output,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name=filename
+    )
+
+@bp.route('/reports/export-summary', methods=['POST'])
+@login_required
+def export_summary():
+    """Export báo cáo tổng hợp (thống kê)"""
+    if current_user.vai_tro != 'admin':
+        return redirect(url_for('auth.login'))
+    
+    # Lấy filter
+    date_from = request.form.get('date_from')
+    date_to = request.form.get('date_to')
+    
+    # Build query
+    query = DonHang.query
+    if date_from and date_from.strip():
+        query = query.filter(DonHang.ngay_tao >= datetime.strptime(date_from, '%Y-%m-%d'))
+    if date_to and date_to.strip():
+        query = query.filter(DonHang.ngay_tao <= datetime.strptime(date_to, '%Y-%m-%d') + timedelta(days=1))
+    
+    don_hangs = query.all()
+    
+    # Tính thống kê
+    stats = {
+        'Tổng số đơn': len(don_hangs),
+        'Tổng doanh thu': sum(d.tong_tien for d in don_hangs),
+        'Đơn hoàn thành': len([d for d in don_hangs if d.trang_thai == 'hoan_thanh']),
+        'Đơn đang giao': len([d for d in don_hangs if d.trang_thai == 'dang_giao']),
+        'Đơn chờ duyệt': len([d for d in don_hangs if d.trang_thai == 'cho_duyet']),
+        'Đơn đã hủy': len([d for d in don_hangs if d.trang_thai == 'da_huy']),
+        'Khách hàng duy nhất': len(set(d.customer_id for d in don_hangs)),
+        'Tài xế tham gia': len(set(d.tai_xe_id for d in don_hangs if d.tai_xe_id)),
+    }
+    
+    # Tạo DataFrame thống kê
+    summary_data = [
+        {'Metric': k, 'Value': f'{v:,.0f}đ' if 'doanh thu' in k.lower() else v}
+        for k, v in stats.items()
+    ]
+    df = pd.DataFrame(summary_data)
+    
+    # Thêm chi tiết theo trạng thái
+    status_stats = []
+    for trang_thai in ['cho_duyet', 'da_duyet', 'dang_giao', 'hoan_thanh', 'da_huy']:
+        count = len([d for d in don_hangs if d.trang_thai == trang_thai])
+        total = sum(d.tong_tien for d in don_hangs if d.trang_thai == trang_thai)
+        status_stats.append({
+            'Trạng thái': trang_thai,
+            'Số đơn': count,
+            'Doanh thu': f'{total:,.0f}đ'
+        })
+    df_status = pd.DataFrame(status_stats)
+    
+    # Create Excel with multiple sheets
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='TongQuan')
+        df_status.to_excel(writer, index=False, sheet_name='TheoTrangThai')
+    
+    output.seek(0)
+    
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f'BaoCao_TongHop_{timestamp}.xlsx'
+    
+    return send_file(
+        output,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name=filename
+    )
