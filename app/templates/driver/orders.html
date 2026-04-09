@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Đơn hàng của tôi{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3>📦 Danh sách đơn hàng</h3>
+    
+    <!-- Filter -->
+    <div class="btn-group mb-3" role="group">
+        <a href="{{ url_for('driver.orders', status='all') }}" class="btn btn-sm {{ 'btn-dark' if current_status == 'all' else 'btn-outline-dark' }}">Tất cả</a>
+        <a href="{{ url_for('driver.orders', status='da_gan') }}" class="btn btn-sm {{ 'btn-dark' if current_status == 'da_gan' else 'btn-outline-dark' }}">Chờ lấy</a>
+        <a href="{{ url_for('driver.orders', status='dang_giao') }}" class="btn btn-sm {{ 'btn-dark' if current_status == 'dang_giao' else 'btn-outline-dark' }}">Đang giao</a>
+        <a href="{{ url_for('driver.orders', status='hoan_thanh') }}" class="btn btn-sm {{ 'btn-dark' if current_status == 'hoan_thanh' else 'btn-outline-dark' }}">Hoàn thành</a>
+    </div>
+
+    {% if don_hangs %}
+        {% for don in don_hangs %}
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h5 class="card-title">🆔 {{ don.ma_don }}</h5>
+                    <span class="badge bg-info">{{ don.trang_thai }}</span>
+                </div>
+                <hr>
+                <p class="mb-1"><strong>📍 Lấy:</strong> {{ don.dia_chi_lay }}</p>
+                <p class="mb-1"><strong>🏁 Giao:</strong> {{ don.dia_chi_giao }}</p>
+                <p class="mb-1"><strong>📞 Khách:</strong> {{ don.customer.phone }}</p>
+                <p class="mb-3"><strong>💰 Tiền thu:</strong> <span class="text-success fw-bold">{{ "{:,.0f}".format(don.tong_tien) }}đ</span></p>
+
+                <!-- Nút hành động -->
+                <form action="{{ url_for('driver.update_order_status', id=don.id) }}" method="POST" class="d-inline">
+                    {% if don.trang_thai == 'da_gan' %}
+                        <input type="hidden" name="new_status" value="da_lay_hang">
+                        <button type="submit" class="btn btn-warning w-100">📦 Đã lấy hàng</button>
+                    {% elif don.trang_thai in ['da_lay_hang', 'da_duyet'] %}
+                        <input type="hidden" name="new_status" value="dang_giao">
+                        <button type="submit" class="btn btn-primary w-100">🚚 Bắt đầu giao</button>
+                    {% elif don.trang_thai == 'dang_giao' %}
+                        <input type="hidden" name="new_status" value="hoan_thanh">
+                        <button type="submit" class="btn btn-success w-100">✅ Đã giao thành công</button>
+                    {% else %}
+                        <button class="btn btn-secondary w-100" disabled>Đã xử lý</button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5">
+            <h3 class="text-muted">📭 Không có đơn hàng nào</h3>
+            <p>Hãy chờ Admin phân công đơn mới!</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

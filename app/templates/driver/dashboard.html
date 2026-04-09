@@ -1,7 +1,46 @@
 {% extends "base.html" %}
-{% block title %}Driver Dashboard{% endblock %}
+{% block title %}Cổng Tài Xế{% endblock %}
 {% block content %}
-<h2>🚗 Driver Dashboard</h2>
-<p>Chào {{ current_user.name }}!</p>
-<div class="alert alert-info">Tính năng driver đang phát triển...</div>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>👋 Xin chào, {{ current_user.name }}</h2>
+        <span class="badge bg-success p-2"> Biển số: {{ tai_xe.license_plate }}</span>
+    </div>
+
+    <!-- THỐNG KÊ -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white p-3 text-center">
+                <h3>🚚 {{ so_don_dang_giao }}</h3>
+                <p>Đơn đang giao</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white p-3 text-center">
+                <h3>✅ {{ so_don_hoan_thanh }}</h3>
+                <p>Đã hoàn thành</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-dark p-3 text-center">
+                <h3>💰 {{ "{:,.0f}".format(doanh_thu) }}đ</h3>
+                <p>Thu nhập ước tính</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- NÚT ĐIỀU HƯỚNG -->
+    <div class="row">
+        <div class="col-6">
+            <a href="{{ url_for('driver.orders', status='all') }}" class="btn btn-outline-primary w-100 py-3">
+                📦 Xem tất cả đơn
+            </a>
+        </div>
+        <div class="col-6">
+            <a href="{{ url_for('driver.orders', status='dang_giao') }}" class="btn btn-outline-success w-100 py-3">
+                🚀 Đơn đang giao
+            </a>
+        </div>
+    </div>
+</div>
 {% endblock %}

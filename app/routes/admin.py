@@ -10,6 +10,9 @@ import io
 
 bp = Blueprint('admin', __name__)
 
+# ========================================
+# DASHBOARD ROUTE
+# ========================================
 @bp.route('/')
 @login_required
 def dashboard():
@@ -87,6 +90,9 @@ def dashboard():
         don_moi_nhat=don_moi_nhat
     )
 
+# ========================================
+# ORDERS ROUTES
+# ========================================
 @bp.route('/orders')
 @login_required
 def orders():
@@ -162,6 +168,9 @@ def cancel_order(id):
     flash('❌ Đã hủy đơn hàng!', 'warning')
     return redirect(url_for('admin.order_detail', id=id))
 
+# ========================================
+# DRIVERS ROUTES
+# ========================================
 @bp.route('/drivers')
 @login_required
 def drivers():
@@ -202,18 +211,20 @@ def reject_driver(id):
     return redirect(url_for('admin.drivers'))
 
 # ========================================
-# EXCEL EXPORT ROUTES
+# REPORTS ROUTES (EXCEL EXPORT) - FIX LỖI THIẾU ROUTE
 # ========================================
 
+# ✅ THÊM ROUTE NÀY ĐỂ TRUY CẬP TRANG CHỌN NGÀY
 @bp.route('/reports')
 @login_required
 def reports():
-    """Trang báo cáo - Export Excel"""
+    """Trang báo cáo - Hiển thị form để người dùng chọn filter"""
     if current_user.vai_tro != 'admin':
         flash('❌ Bạn không có quyền!', 'error')
         return redirect(url_for('auth.login'))
     
     return render_template('admin/reports.html')
+
 
 @bp.route('/reports/export', methods=['POST'])
 @login_required
@@ -222,40 +233,93 @@ def export_excel():
     if current_user.vai_tro != 'admin':
         return redirect(url_for('auth.login'))
     
-    # Lấy filter từ form
-    date_from = request.form.get('date_from')
-    date_to = request.form.get('date_to')
-    status = request.form.get('status', '')
-    customer_id = request.form.get('customer_id', '')
+    # ✅ LẤY TẤT CẢ FORM DATA
+    print("\n" + "="*60)
+    print("🔍 FORM DATA DEBUG:")
+    print(f"   request.form: {request.form.to_dict()}")
+    
+    date_from = request.form.get('date_from', '').strip()
+    date_to = request.form.get('date_to', '').strip()
+    status = request.form.get('status', '').strip()
+    customer_id = request.form.get('customer_id', '').strip()
+    
+    print("\n🔍 FILTER VALUES:")
+    print(f"   date_from: '{date_from}' (type: {type(date_from)})")
+    print(f"   date_to: '{date_to}' (type: {type(date_to)})")
+    print(f"   status: '{status}' (type: {type(status)})")
+    print(f"   customer_id: '{customer_id}' (type: {type(customer_id)})")
     
     # Build query
     query = DonHang.query
     
-    # Filter theo ngày
-    if date_from and date_from.strip():
-        query = query.filter(DonHang.ngay_tao >= datetime.strptime(date_from, '%Y-%m-%d'))
-    if date_to and date_to.strip():
-        query = query.filter(DonHang.ngay_tao <= datetime.strptime(date_to, '%Y-%m-%d') + timedelta(days=1))
+    # ✅ DATE FILTER
+    if date_from:
+        try:
+            query = query.filter(DonHang.ngay_tao >= datetime.strptime(date_from, '%Y-%m-%d'))
+            print(f"\n✅ Applied date_from filter: {date_from}")
+        except Exception as e:
+            print(f"\n⚠️ Invalid date_from: {e}")
     
-    # Filter theo trạng thái
-    if status and status != 'all' and status.strip():
+    if date_to:
+        try:
+            query = query.filter(DonHang.ngay_tao <= datetime.strptime(date_to, '%Y-%m-%d') + timedelta(days=1))
+            print(f"✅ Applied date_to filter: {date_to}")
+        except Exception as e:
+            print(f"⚠️ Invalid date_to: {e}")
+    
+    # ✅ STATUS FILTER
+    if status and status != 'all':
         query = query.filter(DonHang.trang_thai == status)
+        print(f"✅ Applied status filter: {status}")
+    else:
+        print(f"⚠️ NOT applying status filter (value: '{status}')")
     
-    # Filter theo customer
-    if customer_id and customer_id.strip() and customer_id != '0':
-        query = query.filter(DonHang.customer_id == customer_id)
+    # ✅ CUSTOMER FILTER - QUAN TRỌNG NHẤT
+    print(f"\n🔍 CUSTOMER ID CHECK:")
+    print(f"   customer_id value: '{customer_id}'")
+    print(f"   customer_id != '': {customer_id != ''}")
+    print(f"   customer_id != '0': {customer_id != '0'}")
+    print(f"   bool(customer_id): {bool(customer_id)}")
     
-    # Execute query
-    don_hangs = query.order_by(DonHang.ngay_tao.desc()).all()
+    if customer_id and customer_id != '0' and customer_id != '':
+        try:
+            cust_id = int(customer_id)
+            print(f"\n✅ Filtering customer_id = {cust_id}")
+            query = query.filter(DonHang.customer_id == cust_id)
+            
+            # Test query (Chỉ chạy all() để debug, không dùng result này cho file excel)
+            test_results = query.all()
+            print(f"✅ Query returned {len(test_results)} orders for customer_id {cust_id}")
+            for order in test_results:
+                print(f"   - Order {order.id}: {order.customer.name if order.customer else 'NULL'}")
+            
+            # Build lại query để sắp xếp và lấy data cuối cùng
+            query = DonHang.query
+            if date_from: query = query.filter(DonHang.ngay_tao >= datetime.strptime(date_from, '%Y-%m-%d'))
+            if date_to: query = query.filter(DonHang.ngay_tao <= datetime.strptime(date_to, '%Y-%m-%d') + timedelta(days=1))
+            if status and status != 'all': query = query.filter(DonHang.trang_thai == status)
+            if customer_id and customer_id != '0' and customer_id != '': query = query.filter(DonHang.customer_id == cust_id)
+            
+            don_hangs = query.order_by(DonHang.ngay_tao.desc()).all()
+            
+        except Exception as e:
+            print(f"\n⚠️ Invalid customer_id: {e}")
+            don_hangs = query.order_by(DonHang.ngay_tao.desc()).all()
+    else:
+        print("\n⚠️ NOT filtering customer_id (empty or 0) - Will get ALL customers")
+        don_hangs = query.order_by(DonHang.ngay_tao.desc()).all()
+    
+    print(f"\n📊 FINAL RESULT: {len(don_hangs)} orders")
+    print("="*60 + "\n")
     
     # Convert to list of dicts
     data = []
     for don in don_hangs:
         data.append({
             'Mã đơn': don.ma_don or f'#{don.id}',
-            'Khách hàng': don.customer.name,
-            'Email': don.customer.email,
-            'SĐT': don.customer.phone,
+            'Khách hàng': don.customer.name if don.customer else 'NULL',
+            'Email': don.customer.email if don.customer else 'NULL',
+            'SĐT': don.customer.phone if don.customer else 'NULL',
             'Địa chỉ lấy': don.dia_chi_lay,
             'Địa chỉ giao': don.dia_chi_giao,
             'Loại hàng': don.loai_hang or 'N/A',
@@ -271,15 +335,11 @@ def export_excel():
             'Tài xế': don.tai_xe.user.name if don.tai_xe else 'Chưa gán',
         })
     
-    # Create DataFrame
+    # Create Excel
     df = pd.DataFrame(data)
-    
-    # Create Excel file in memory
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='DonHang')
-        
-        # Auto-adjust column width
         worksheet = writer.sheets['DonHang']
         for column in worksheet.columns:
             max_length = 0
@@ -294,18 +354,16 @@ def export_excel():
             worksheet.column_dimensions[column_letter].width = adjusted_width
     
     output.seek(0)
-    
-    # Generate filename
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     filename = f'BaoCao_DonHang_{timestamp}.xlsx'
     
-    # Send file
     return send_file(
         output,
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         as_attachment=True,
         download_name=filename
     )
+
 
 @bp.route('/reports/export-summary', methods=['POST'])
 @login_required
@@ -315,14 +373,14 @@ def export_summary():
         return redirect(url_for('auth.login'))
     
     # Lấy filter
-    date_from = request.form.get('date_from')
-    date_to = request.form.get('date_to')
+    date_from = request.form.get('date_from', '').strip()
+    date_to = request.form.get('date_to', '').strip()
     
     # Build query
     query = DonHang.query
-    if date_from and date_from.strip():
+    if date_from:
         query = query.filter(DonHang.ngay_tao >= datetime.strptime(date_from, '%Y-%m-%d'))
-    if date_to and date_to.strip():
+    if date_to:
         query = query.filter(DonHang.ngay_tao <= datetime.strptime(date_to, '%Y-%m-%d') + timedelta(days=1))
     
     don_hangs = query.all()

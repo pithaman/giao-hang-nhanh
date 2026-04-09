@@ -40,6 +40,8 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if current_user.is_authenticated %}
+                        
+                        <!-- ✅ MENU CHO ADMIN -->
                         {% if current_user.vai_tro == 'admin' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
@@ -50,6 +52,8 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin.drivers') }}">Tài xế</a>
                         </li>
+                        
+                        <!-- ✅ MENU CHO CUSTOMER -->
                         {% elif current_user.vai_tro == 'customer' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('customer.dashboard') }}">Dashboard</a>
@@ -60,11 +64,25 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('customer.my_orders') }}">Đơn của tôi</a>
                         </li>
+                        
+                        <!-- ✅ MENU CHO DRIVER (MỚI THÊM) -->
+                        {% elif current_user.vai_tro == 'driver' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('driver.dashboard') }}">📊 Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('driver.orders') }}">📦 Đơn của tôi</a>
+                        </li>
+                        
                         {% endif %}
+                        
+                        <!-- Logout button (chung cho tất cả) -->
                         <li class="nav-item">
                             <a class="nav-link btn btn-outline-light btn-sm px-3" href="{{ url_for('auth.logout') }}">Logout</a>
                         </li>
+                        
                     {% else %}
+                    <!-- Menu khi chưa login -->
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
                     </li>
@@ -91,7 +109,7 @@
         {% endwith %}
     </div>
     
-    <!-- ✅ MAIN CONTENT BLOCK (QUAN TRỌNG - KHÔNG ĐƯỢC THIẾU!) -->
+    <!-- ✅ MAIN CONTENT BLOCK -->
     <main>
         {% block content %}{% endblock %}
     </main>
