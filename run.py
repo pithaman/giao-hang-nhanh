@@ -1,29 +1,18 @@
 # run.py
-from app import create_app, db
-from app.models import User
+from app import create_app
 import os
 
 app = create_app()
 
-with app.app_context():
-    db.create_all()
-    print("✅ Database tables created!")
-    
-    admin = User.query.filter_by(email='admin@giaohang.com').first()
-    if not admin:
-        admin = User(
-            email='admin@giaohang.com',
-            name='Admin',
-            phone='0123456789',
-            vai_tro='admin'  # ✅ STRING!
-        )
-        admin.set_password('admin123')
-        db.session.add(admin)
-        db.session.commit()
-        print("✅ Admin created: admin@giaohang.com / admin123")
-    else:
-        print("ℹ️ Admin already exists")
-
 if __name__ == '__main__':
+    # ✅ Render yêu cầu bind đến port từ environment variable
     port = int(os.environ.get('PORT', 10000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    
+    # Debug log
+    print(f"🚀 Starting app on port {port}")
+    
+    app.run(
+        host='0.0.0.0',  # Bind tất cả interfaces
+        port=port,
+        debug=os.environ.get('FLASK_ENV') == 'development'
+    )
