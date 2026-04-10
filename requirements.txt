@@ -85,5 +85,5 @@ python-http-client==3.3.7
 # ================================
 # PYDANTIC (không ghi pydantic_core - pip tự resolve)
 # ================================
-pydantic==2.11.7
+pydantic==2.9.2
 # ✅ KHÔNG GHI pydantic_core - để pip tự chọn version compatible
