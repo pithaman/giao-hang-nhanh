@@ -1,66 +1,89 @@
-alembic==1.18.4
-annotated-types==0.7.0
-anyio==4.10.0
-asgiref==3.10.0
-bcrypt==5.0.0
-bidict==0.23.1
-blinker==1.9.0
-cffi==2.0.0
-click==8.2.1
-colorama==0.4.6
-cryptography==46.0.7
-Django==5.2.7
-django-crispy-forms==2.4
-et_xmlfile==2.0.0
-fastapi==0.116.1
+# ================================
+# FLASK CORE
+# ================================
 Flask==3.1.2
-Flask-JWT-Extended==4.7.1
+Werkzeug==3.1.3
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+itsdangerous==2.2.0
+click==8.2.1
+blinker==1.9.0
+
+# ================================
+# FLASK EXTENSIONS
+# ================================
+Flask-SQLAlchemy==3.1.1
 Flask-Login==0.6.3
 Flask-Migrate==4.1.0
 Flask-SocketIO==5.5.1
-Flask-SQLAlchemy==3.1.1
-graphviz==0.21
-greenlet==3.2.4
+Flask-JWT-Extended==4.7.1
+
+# ================================
+# DATABASE
+# ================================
+SQLAlchemy==2.0.44
+psycopg2-binary==2.9.11
+PyMySQL==1.1.2
+alembic==1.18.4
+
+# ================================
+# PRODUCTION SERVER
+# ================================
 gunicorn==21.2.0
-h11==0.16.0
-httptools==0.7.1
-idna==3.10
-itsdangerous==2.2.0
-Jinja2==3.1.6
-Mako==1.3.10
-MarkupSafe==3.0.3
-mysqlclient==2.2.7
+
+# ================================
+# ENVIRONMENT & UTILS
+# ================================
+python-dotenv==1.1.1
+python-dateutil==2.9.0.post0
+pytz==2025.2
+tzdata==2025.2
+six==1.17.0
+
+# ================================
+# DATA PROCESSING (nếu dùng pandas/excel)
+# ================================
+pandas==2.3.3
 numpy==2.3.4
 openpyxl==3.1.5
-packaging==26.0
-pandas==2.3.3
-pillow==12.0.0
-psutil==7.1.3
-psycopg2-binary==2.9.11
-pycparser==3.0
-pydantic==2.11.7
-pydantic_core==2.33.2
-PyJWT==2.12.1
-PyMySQL==1.1.2
-python-dateutil==2.9.0.post0
-python-dotenv==1.1.1
+
+# ================================
+# SOCKET.IO DEPENDENCIES
+# ================================
 python-engineio==4.12.3
-python-http-client==3.3.7
 python-socketio==5.14.3
-pytz==2025.2
-PyYAML==6.0.3
-sendgrid==6.12.5
 simple-websocket==1.1.0
-six==1.17.0
-sniffio==1.3.1
-SQLAlchemy==2.0.44
-sqlparse==0.5.3
-starlette==0.47.2
-typing-inspection==0.4.1
-typing_extensions==4.14.1
-tzdata==2025.2
-uvicorn==0.35.0
-watchfiles==1.1.1
+bidict==0.23.1
 websockets==15.0.1
-Werkzeug==3.1.3
 wsproto==1.2.0
+h11==0.16.0
+
+# ================================
+# SECURITY & AUTH
+# ================================
+cryptography==46.0.7
+PyJWT==2.12.1
+bcrypt==5.0.0
+cffi==2.0.0
+pycparser==3.0
+
+# ================================
+# UTILITIES (optional - giữ lại nếu code dùng)
+# ================================
+pillow==12.0.0
+graphviz==0.21
+psutil==7.1.3
+PyYAML==6.0.3
+colorama==0.4.6
+
+# ================================
+# EMAIL (nếu dùng sendgrid)
+# ================================
+sendgrid==6.12.5
+python-http-client==3.3.7
+
+# ================================
+# PYDANTIC (không ghi pydantic_core - pip tự resolve)
+# ================================
+pydantic==2.11.7
+# ✅ KHÔNG GHI pydantic_core - để pip tự chọn version compatible
